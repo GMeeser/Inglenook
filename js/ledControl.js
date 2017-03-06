@@ -99,7 +99,7 @@ function off(){
 function setColour(){
 	var rgb = hexToRgb($('#color').val());
 	$.ajax({
-		url: host+'/leds/set/',
+		url: host+'/leds/fade/set/',
 		type: 'GET',
 		dataType: 'JSONP',
 		data: {r :rgb.r, g: rgb.g, b: rgb.b}
@@ -108,7 +108,7 @@ function setColour(){
 function setColourHex(hex){
 	var rgb = hexToRgb(hex);
 	$.ajax({
-		url: host+'/leds/set/',
+		url: host+'/leds/fade/set/',
 		type: 'GET',
 		dataType: 'JSONP',
 		data: {r :rgb.r, g: rgb.g, b: rgb.b}
