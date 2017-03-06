@@ -104,3 +104,12 @@ function setColour(){
 		data: {r :rgb.r, g: rgb.g, b: rgb.b}
 	})
 }
+function setColourHex(hex){
+	var rgb = hexToRgb(hex);
+	$.ajax({
+		url: host+'/leds/set/',
+		type: 'GET',
+		dataType: 'JSONP',
+		data: {r :rgb.r, g: rgb.g, b: rgb.b}
+	})
+}

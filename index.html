@@ -34,6 +34,9 @@
 <body>
 <div id="homeScreen" data-role="page">
 	<div data-role="content">
+		<input type="color" id="color" onclick="setColour()" onchange="setColour()" />
+		<button onclick="setColour('#F6FB93')">On</button>
+		<button onclick="off()">Off</button>
 		<button onclick="fadeRedOn(5)">Fade On Red</button>
 		<button onclick="fadeRedOff(5)">Fade Off Red</button>
 		<button onclick="fadeGreenOn(5)">Fade On Green</button>
@@ -44,8 +47,6 @@
 		<button onclick="singleFade(1,20)">Single Fade</button>
 		<button onclick="multiFade(5,20)">Multi - Fade</button>
 		<button onclick="kill()">Freeze</button>
-		<button onclick="off()">Off</button>
-		<input type="color" id="color" onclick="setColour()" />
 	</div>
 </div>
 </body>
