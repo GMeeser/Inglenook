@@ -88,12 +88,12 @@ function kill(){
 	})
 }
 function off(){
-	kill();
+	//kill();
 	$.ajax({
 		url: host+'/leds/fade/off/',
 		type: 'GET',
 		dataType: 'JSONP',
-		data: {time :1, count: 0}
+		data: {time: 1}
 	})
 }
 function setColour(){
