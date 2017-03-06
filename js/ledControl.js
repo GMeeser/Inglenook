@@ -1,3 +1,5 @@
+var host="http://10.0.0.20";
+
 function hexToRgb(hex) {
     var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result ? {
@@ -8,7 +10,7 @@ function hexToRgb(hex) {
 }
 function fadeRedOn(Time){
 	$.ajax({
-		url: '/leds/async/fade/red/on/',
+		url: host+'/leds/async/fade/red/on/',
 		type: 'GET',
 		dataType: 'JSONP',
 		data: {time :Time}
@@ -16,7 +18,7 @@ function fadeRedOn(Time){
 }
 function fadeRedOff(Time){
 	$.ajax({
-		url: '/leds/async/fade/red/off/',
+		url: host+'/leds/async/fade/red/off/',
 		type: 'GET',
 		dataType: 'JSONP',
 		data: {time :Time}
@@ -24,7 +26,7 @@ function fadeRedOff(Time){
 }
 function fadeGreenOn(Time){
 	$.ajax({
-		url: '/leds/async/fade/green/on/',
+		url: host+'/leds/async/fade/green/on/',
 		type: 'GET',
 		dataType: 'JSONP',
 		data: {time :Time}
@@ -32,7 +34,7 @@ function fadeGreenOn(Time){
 }
 function fadeGreenOff(Time){
 	$.ajax({
-		url: '/leds/async/fade/green/off/',
+		url: host+'/leds/async/fade/green/off/',
 		type: 'GET',
 		dataType: 'JSONP',
 		data: {time :Time}
@@ -40,7 +42,7 @@ function fadeGreenOff(Time){
 }
 function fadeBlueOn(Time){
 	$.ajax({
-		url: '/leds/async/fade/blue/on/',
+		url: host+'/leds/async/fade/blue/on/',
 		type: 'GET',
 		dataType: 'JSONP',
 		data: {time :Time}
@@ -48,7 +50,7 @@ function fadeBlueOn(Time){
 }
 function fadeBlueOff(Time){
 	$.ajax({
-		url: '/leds/async/fade/blue/off/',
+		url: host+'/leds/async/fade/blue/off/',
 		type: 'GET',
 		dataType: 'JSONP',
 		data: {time :Time}
@@ -56,7 +58,7 @@ function fadeBlueOff(Time){
 }
 function run(Value){
 	$.ajax({
-		url: '/leds/async/pattern/run/',
+		url: host+'/leds/async/pattern/run/',
 		type: 'GET',
 		dataType: 'JSONP',
 		data: {count: Value}
@@ -64,7 +66,7 @@ function run(Value){
 }
 function singleFade(Time, Value){
 	$.ajax({
-		url: '/leds/async/pattern/singleFade/',
+		url: host+'/leds/async/pattern/singleFade/',
 		type: 'GET',
 		dataType: 'JSONP',
 		data: {time :Time, count: Value}
@@ -72,7 +74,7 @@ function singleFade(Time, Value){
 }
 function multiFade(Time, Value){
 	$.ajax({
-		url: '/leds/async/pattern/multiFade/',
+		url: host+'/leds/async/pattern/multiFade/',
 		type: 'GET',
 		dataType: 'JSONP',
 		data: {time :Time, count: Value}
@@ -80,7 +82,7 @@ function multiFade(Time, Value){
 }
 function kill(){
 	$.ajax({
-		url: '/leds/async/kill/',
+		url: host+'/leds/async/kill/',
 		type: 'GET',
 		dataType: 'JSONP'
 	})
@@ -88,7 +90,7 @@ function kill(){
 function off(){
 	kill();
 	$.ajax({
-		url: '/leds/white/off/',
+		url: host+'/leds/white/off/',
 		type: 'GET',
 		dataType: 'JSONP'
 	})
@@ -96,7 +98,7 @@ function off(){
 function setColour(){
 	var rgb = hexToRgb($('#color').val());
 	$.ajax({
-		url: '/leds/set/',
+		url: host+'/leds/set/',
 		type: 'GET',
 		dataType: 'JSONP',
 		data: {r :rgb.r, g: rgb.g, b: rgb.b}
