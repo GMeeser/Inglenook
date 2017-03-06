@@ -36,10 +36,6 @@ Chris Griffith
 
 		<gap:platform name="android" />
 
-		<feature name="http://api.phonegap.com/1.0/network"/>
-		<gap:plugin name="org.apache.cordova.inappbrowser"  />
-		<gap:plugin name="org.apache.cordova.splashscreen"  />
-
 		<icon src="res/icon/android/icon-36-ldpi.png" gap:platform="android" gap:density="ldpi" />
 		<icon src="res/icon/android/icon-48-mdpi.png" gap:platform="android" gap:density="mdpi" />
 		<icon src="res/icon/android/icon-72-hdpi.png" gap:platform="android" gap:density="hdpi" />
