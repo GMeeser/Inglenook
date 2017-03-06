@@ -88,7 +88,7 @@ function kill(){
 	})
 }
 function off(){
-	//kill();
+	kill();
 	$.ajax({
 		url: host+'/leds/fade/off/',
 		type: 'GET',
