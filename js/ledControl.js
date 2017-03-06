@@ -92,7 +92,7 @@ function off(){
 	$.ajax({
 		url: host+'/leds/fade/off/',
 		type: 'GET',
-		dataType: 'JSONP'
+		dataType: 'JSONP',
 		data: {time :1, count: 0}
 	})
 }
