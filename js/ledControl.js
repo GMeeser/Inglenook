@@ -90,9 +90,10 @@ function kill(){
 function off(){
 	kill();
 	$.ajax({
-		url: host+'/leds/white/off/',
+		url: host+'/leds/fade/off/',
 		type: 'GET',
 		dataType: 'JSONP'
+		data: {time :1, count: 0}
 	})
 }
 function setColour(){
