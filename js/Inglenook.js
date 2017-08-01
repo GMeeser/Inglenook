@@ -1,7 +1,7 @@
 //Variables
 var token = localStorage.token;
 var HOST = "http://home.meeser.co.za:900/grant/Apps/Server%20Backends/Inglenook/api.php";
-var HOST = "http://server1/grant/Apps/Server%20Backends/Inglenook/api.php";
+//var HOST = "http://server1/grant/Apps/Server%20Backends/Inglenook/api.php";
 
 var addToCartMax = 0;
 var cart = [];
