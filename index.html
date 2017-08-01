@@ -3,54 +3,259 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-	<title>Lights</title>
+	<title>Inglenook</title>
 	<link rel="stylesheet"  href="css/jquery.mobile.min.css">
-	<style>
-		#homeBanner {
-			width: 100%;
-		}
-		.center {
-			text-align: center;
-			margin-left: auto;
-			margin-right:auto;
-		}
-		.banner {
-			display:block;
-			width: 100%;
-		}
-		button, input{
-			width:100%;
-			height: 150px;
-			font-size: 72pt;
-		}
-	</style>
+    <link rel="stylesheet"  href="css/Inglenook.css">
+    <link rel="stylesheet"  href="css/font-awesome.min.css">
 	<script src="js/jquery.js"></script>
 	<script src="js/jquery.mobile.min.js"></script>
 	<script src="js/app.js"></script>
+    <script src="js/Inglenook.js"></script>
 	<script src="phonegap.js"></script>
-	<script src="js/ledControl.js"></script>
+	<script src="js/masonry.js"></script>
 </head>
 	
 <body>
-<div id="homeScreen" data-role="page">
+<!-- Menu -->
+<i id="menu_btn" class="fa fa-navicon fa-3x hide" onClick="openMenu()"></i>
+
+<ul id="menu">
+	<a href="#homeScreen"><li><i class="fa fa-cart-plus"></i> Products</li></a>
+   	<a href="#" onclick="populateCart();"><li><i class="fa fa-shopping-cart"></i> My Bag</li></a>
+   	<a onClick="updateTracking()"><li><i class="fa fa-crosshairs"></i> Track Order</li></a>
+    <a href="#newsLetter"><li><i class="fa fa-newspaper-o"></i> News Letter</li></a>
+	<a href="#" onClick="gotoProfileSettings()"><li><i class="fa fa-cogs"></i> Settings</li></a>
+    <a href="#" onclick="logout()"><li style="border-bottom-width:2px;"><i class="fa fa-sign-out"></i> Log Out</li></a>
+</ul>
+
+<!-- loading -->
+<div id="loading" data-role="page">
 	<div data-role="content">
-		<button onclick="off(); setColourHex('#F6FB93')">On</button>
-		<button onclick="off();">Off</button>
-		<input type="color" id="color" onchange="setColour()" />
-		<button onclick="off(); fadeRedOn(2)">Fade To Red</button>
-		<button onclick="off(); fadeGreenOn(2)">Fade To Green</button>
-		<button onclick="off(); fadeBlueOn(2)">Fade To Blue</button>
-		<button onclick="fadeRedOn(5)">Fade On Red</button>
-		<button onclick="fadeRedOff(5)">Fade Off Red</button>
-		<button onclick="fadeGreenOn(5)">Fade On Green</button>
-		<button onclick="fadeGreenOff(5)">Fade Off Green</button>
-		<button onclick="fadeBlueOn(5)">Fade On Blue</button>
-		<button onclick="fadeBlueOff(5)">Fade Off Blue</button>
-		<button onclick="run(20)">Run</button>
-		<button onclick="singleFade(5,20000000)">Single Fade</button>
-		<button onclick="multiFade(5,20000000)">Multi - Fade</button>
-		<button onclick="kill()">Freeze</button>
+    	<img id="gif" src="images/Loading-Icon-250.gif"/>
+		<img id="logo" src="images/Splash Logo_640.png"/>
 	</div>
 </div>
+
+
+<!-- Homescreen -->
+<div id="homeScreen" data-role="page" style="overflow:hidden;">
+	<img id="logo_banner" src="images/Logo.png" />
+	<div data-role="content">
+		<img id="veg" src="images/fresh vegetables.jpg" onclick="products('veggies')" />
+	    <img id="art" src="images/Artisanal goods.jpg" onclick="products('artisanal')" />
+	</div>
+    <img id="veggies" src="images/Veggies at bottom.png"/>
+</div>
+
+<!-- login page -->
+<div id="logIn" data-role="page">
+	<img id="logo_banner" src="images/Logo.png" />
+	<div data-role="content">
+		<h1>Log In</h1>
+        <input type="email" placeholder="Email Address" id="login_email" />
+        <input type="password" placeholder="Password" id="login_password" />
+	<label id="login_msg"></label>
+        <div style="text-align:center;">
+        	<button id="login_btn" type="submit" onClick="login()">Log In</button>
+            	<button onClick="window.location = '#forgot_password';">Forgot Password</button>
+            	<button onClick="window.location = '#register'">Register</button>
+        </div>
+	</div>
+</div>
+
+<!-- Register page -->
+<div id="register" data-role="page" >
+	<img id="logo_banner" src="images/Logo.png" />
+	<div data-role="content">
+		<h1>Register</h1>
+        <input type="text" placeholder="Full Name" id="register_name" />
+        <input type="tel" placeholder="Contact Number" id="register_contactNumber" />
+        <input type="email" placeholder="Email Address" id="register_email" />
+        <input type="password" placeholder="Password" id="register_password" />
+        <input type="password" placeholder="Confirm Password" id="register_confirm_password" />
+	<label id="register_msg"></label>
+        <div style="text-align:center;">
+        	<button id="register_btn" onClick="register()">Done</button>
+            <button onClick="window.location = '#logIn'">Cancel</button>
+        </div>
+	</div>
+</div>
+
+<!-- settings page -->
+<div id="profileSettings" data-role="page" >
+	<img id="logo_banner" src="images/Logo.png" />
+	<div data-role="content">
+		<h1>Profile Settings</h1>
+        <input type="text" placeholder="Full Name" id="settings_name" />
+        <input type="tel" placeholder="Contact Number" id="settings_contactNumber" />
+        <input type="email" placeholder="Email Address" id="settings_email" />
+		<label id="settings_msg">&nbsp;</label>
+        <div style="text-align:center;">
+        	<button id="settings_change_password_btn" onClick="window.location = '#changePassword'">Change Password</button>
+        	<button id="settings_save_btn" onClick="updateProfile()">Save</button>
+            <button id="settings_back_btn" onClick="window.location = '#homeScreen'">Back</button>
+        </div>
+	</div>
+</div>
+
+<!-- Change Password page -->
+<div id="changePassword" data-role="page">
+	<img id="logo_banner" src="images/Logo.png" />
+	<div data-role="content">
+		<h1>Change Password</h1>
+        <input type="password" placeholder="Old Password" id="changePassword_old_password" />
+        <input type="password" placeholder="New Password" id="changePassword_new_password" />
+        <input type="password" placeholder="Confirm New Password" id="changePassword_confirm_new_password" />
+		<label id="changePassword_msg">&nbsp;</label>
+        <div style="text-align:center;">
+        	<button type="submit" onClick="changePassword()">Save</button>
+            <button onClick="window.location = '#profileSettings';">Back</button>
+        </div>
+	</div>
+</div>
+
+<!-- Forgot Password page -->
+<div id="forgot_password" data-role="page">
+	<img id="logo_banner" src="images/Logo.png" />
+	<div data-role="content">
+		<h1>Forgot Password</h1>
+        <input type="email" placeholder="Email Address" id="forgotPassword_email" />
+	<label id="forgotPassword_msg">&nbsp;</label>
+        <div style="text-align:center;">
+        	<button type="submit" onClick="forgotPassword()">Send My Reset Link</button>
+            	<button onClick="window.location = '#logIn';">Cancel</button>
+        </div>
+	</div>
+</div>
+
+<!-- Products page -->
+<div id="products" data-role="page">
+	<img id="logo_banner" src="images/Logo.png" />
+	<div data-role="content">
+		<h1 id="products_title">Fresh Vegetables</h1>
+        <div id="productListContainer">
+        	
+        </div>
+	</div>
+    <div id="addToCartContainer">
+    	<div id="addToCart">
+				<div align="right"><i style="color:black !important" class="fa fa-2x fa-times" onclick="$('#addToCartContainer').hide()"></i></div>
+        		<img id="addToCartImg" src="" />
+                <div class="textpadding">
+                	<h2 id="addToCartTitle"></h2>
+                    <label id="addToCartStock" class="stock"></label><br/>
+               		<label id="addToCartPrice" class="price"></label><br/>
+                    <label><i class="fa fa-3x fa-plus-circle" onClick="addToCartIncrement();"></i><b id="addToCartAddNumber">1</b><i class="fa fa-3x fa-minus-circle"  onClick="addToCartDecrement();"></i></label><br/>
+                    <img src="images/Add Button.jpg" class="add_btn" id="addToCartBtn" />
+                </div>
+        </div>
+     </div>
+</div>
+
+<!-- My Bag page -->
+<div id="myBag" data-role="page">
+	<img id="logo_banner" src="images/Logo.png" />
+	<div data-role="content">
+		<h1 id="myBag_title">My Bag</h1>
+        <div id="myBagListContainer">
+        	<table id="cartTable">
+            	<tr id="titleRow"><td id="col1">Item</td><td id="col2"></td><td id="col3">Amount</td><td id="col4">Price</td></tr>
+                <tr id="titleTotalRow"><td></td><td></td><td></td><td>Total</td></tr>
+            </table>
+            <div id="myBagBtns">
+            	<button id="myBagEditBtn" onClick="editCart()">Edit</button>
+                <button id="myBagEditBtn" onClick="clearCart()">Clear Cart</button>
+                <button id="myBagProceedBtn" onClick="proceed()">Proceed</button>
+            </div>
+        </div>
+	</div>
+</div>
+
+<!-- select dropOffLocation page -->
+<div id="selectDropOffLocation" data-role="page">
+	<img id="logo_banner" src="images/Logo.png" />
+	<div data-role="content">
+		<h1>Select Drop Off Point</h1>
+        <select id="dropOffLocation">
+        	<option value="Darling">Darling - Flying Pig</option>
+            <option value="Grotto Bay">Grotto Bay - Security House</option>
+            <option value="Tableview">Tableview - German Deli</option>
+            <option value="Cape Town">Cape Town - Strand Tower Hotel</option>
+            <option value="Hout Bay">Hout Bay - 13 Baviaanskloof Road</option>
+        </select>
+        <div align="center">
+        	<button id="selectDropOffLoactionBtn" onClick="addDropOffLocation()">Confirm Order</button>
+            <button id="selectDropOffLoactionCancelBtnn" onClick="cancelOrder()">Cancel Order</button>
+        </div>
+	</div>
+</div>
+
+<!-- confirmOrder page -->
+<div id="confirmOrder" data-role="page">
+	<img id="logo_banner" src="images/Logo.png" />
+	<div data-role="content">
+		<h1 id="confirm_title">Confirm Order</h1>
+        <div id="myBagListContainer">
+        	<table id="confirmOrderCartTable">
+            	<tr id="confirmOrderTitleRow"><td id="confirmOrderCol1">Item</td><td id="confirmOrderCol2"></td><td id="confirmOrderCol3">Amount</td><td id="col4">Price</td></tr>
+                <tr id="confirmOrderTitleTotalRow"><td></td><td></td><td></td><td>Total</td></tr>
+            </table>
+            <div id="confirmOrderDropOffPoint"></div>
+            <div id="confirmOrderBtns">
+                <button id="confirmOrderCancelBtn" onClick="cancelOrder()">Cancel Order</button>
+                <button id="confirmOrderCheckoutBtn" onClick="checkout()">Checkout</button>
+            </div>
+            <div id="inset_form"></div>
+        </div>
+	</div>
+</div>
+
+<!-- select card to pay with page -->
+<div id="selectCard" data-role="page">
+	<img id="logo_banner" src="images/Logo.png" />
+	<div data-role="content">
+		<h1>Select Card</h1>
+        <form id="cards">
+        	
+        </form>
+        <div align="center">
+        	<button id="selectCardBtn" onClick="payOrder($('input[name=card]:checked').val())">Checkout</button>
+            <button id="selectCardCancelBtn" onClick="cancelOrder()">Cancel Order</button>
+        </div>
+	</div>
+</div>
+
+<!-- paymentComplete page -->
+<div id="paymentComplete" data-role="page">
+	<img id="logo_banner" src="images/Logo.png" />
+	<div data-role="content">
+		<h1 id="paymentCompleteTitle">Payment Completed</h1>
+      	<div id="paymentCompleteContent"></div>
+        <div id="paymentCompleteBtns" align="center">
+            
+        </div>
+	</div>
+</div>
+
+<!-- track order page -->
+<div id="trackOrder" data-role="page">
+	<img id="logo_banner" src="images/Logo.png" />
+	<div data-role="content">
+		<h1>Track Order</h1>
+      	<div id="trackingContainer">
+        
+        </div>
+        
+	</div>
+</div>
+
+<!-- Newsletter page -->
+<div id="newsLetter" data-role="page">
+	<img id="logo_banner" src="images/Logo.png" onClick="showFrame();" />
+	<div data-role="content">
+	</div>
+    <div id="newsLetterContainer" style="height:65vh;"></div>
+</div>
+
 </body>
 </html>
