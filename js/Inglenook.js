@@ -15,7 +15,6 @@ var deposit = 0;
 // Wait for PhoneGap to load
 document.addEventListener("deviceready", onDeviceReady, false);
 $(document).ready(onDeviceReady);
-$(window).load(arrangeHome);
 
 // PhoneGap is ready
 function onDeviceReady() {
@@ -27,19 +26,11 @@ function onDeviceReady() {
     });
 	
 
-	$("#login_btn").on("taphold",function(){
-		token=1;
-		window.location = "#homeScreen";
-		$('#menu_btn').removeClass('hide');
-		setTimeout(arrangeHome,100);
-	});
-
 	$('#menu_btn').removeClass('hide');
 	console.log(window.location.hash);
 	if(window.location.hash!='#paymentComplete'){window.location = "#homeScreen"; orderID=0;}else{
 		paymentComplete();	
 	}
-	setTimeout(arrangeHome,250);
 	isLogedIn();
 	$.mobile.loadingMessage = false;
 	$("#login_password").keydown(function (e){if (e.keyCode == 13){$("#login_btn").click();}});
