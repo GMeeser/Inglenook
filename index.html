@@ -176,13 +176,16 @@
 	<img id="logo_banner" src="images/Logo.png" />
 	<div data-role="content">
 		<h1>Select Drop Off Point</h1>
-        <select id="dropOffLocation">
+        <select id="dropOffLocation" onChange="updateDropOffLocationMap();">
         	<option value="Darling">Darling - Flying Pig</option>
             <option value="Grotto Bay">Grotto Bay - Security House</option>
             <option value="Tableview">Tableview - German Deli</option>
             <option value="Cape Town">Cape Town - Strand Tower Hotel</option>
             <option value="Hout Bay">Hout Bay - 13 Baviaanskloof Road</option>
         </select>
+        <div class="iframe_container">
+        	<iframe id="selectDropOffLocationMap"></iframe>
+        </div>
         <div align="center">
         	<button id="selectDropOffLoactionBtn" onClick="addDropOffLocation()">Confirm Order</button>
             <button id="selectDropOffLoactionCancelBtnn" onClick="cancelOrder()">Cancel Order</button>
@@ -221,6 +224,20 @@
         <div align="center">
         	<button id="selectCardBtn" onClick="payOrder($('input[name=card]:checked').val())">Checkout</button>
             <button id="selectCardCancelBtn" onClick="cancelOrder()">Cancel Order</button>
+        </div>
+	</div>
+</div>
+
+<!-- payment page -->
+<div id="paymentPage" data-role="page">
+	<img id="logo_banner" src="images/Logo.png" />
+	<div data-role="content">
+    	<div class="iframe_container">
+			<iframe id="payment_iframe" scrolling="no"></iframe>
+        </div>
+        <div id="paymentPageLoadingImgContainer">
+        	<img id="paymentPageLoadingImg" src="images/Loading-Icon-250.gif"/>
+            <h1 class="title">Loading</h1>
         </div>
 	</div>
 </div>

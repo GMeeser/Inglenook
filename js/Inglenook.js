@@ -12,6 +12,8 @@ var orderID = localStorage.orderID;
 var requiresDeposit = true;
 var deposit = 0;
 
+var disableMenu = false;
+
 // Wait for PhoneGap to load
 document.addEventListener("deviceready", onDeviceReady, false);
 $(document).ready(onDeviceReady);
@@ -64,7 +66,7 @@ function isLogedIn(){
 }
 
 function openMenu(){
-	if(token!=0){
+	if(token!=0 && disableMenu==false){
 		$("#menu").addClass('open');
 	}
 }
@@ -505,6 +507,7 @@ function cancelOrder(){
 
 function proceed(){
 	createOrder();
+	updateDropOffLocationMap();
 	window.location = "#selectDropOffLocation";	
 }
 
@@ -554,6 +557,12 @@ function checkout(){
 }
 
 function payOrder(cardVaultID){
+	var returnURL = 'https://inglenookapp.co.za/return.php';
+	$('#payment_iframe').attr('style','');
+	window.location = '#paymentPage';
+	$('#menu_btn').hide();
+	disableMenu = true;
+	
 	if(cardVaultID=='NEW'){cardVaultID='';}
 	localStorage.cardValtID = cardVaultID;
 	$.ajax({
@@ -564,12 +573,13 @@ function payOrder(cardVaultID){
 				"token": token,
 				"orderID":orderID,
 				"cardVaultID":cardVaultID,
-				"returnURL": window.location.href},
+				"returnURL": returnURL},
 		success: function(responseData, textStatus, jqXHR){
 				responseData = JSON.parse(responseData);
 				if(responseData.msg!='Failed'){
-					$('#inset_form').html('<form action="https://secure.paygate.co.za/payweb3/process.trans" name="redirectForm" method="post" style=""><input type="hidden" name="PAY_REQUEST_ID" value="' + responseData.PAY_REQUEST_ID + '" /><input type="hidden" name="CHECKSUM" value="' + responseData.CHECKSUM + '" /></form>');
-    				document.forms['redirectForm'].submit();
+					$("#payment_iframe").attr('src','https://inglenookapp.co.za/redirect.php?payRequestID='+responseData.PAY_REQUEST_ID+'&checksum='+responseData.CHECKSUM);
+					//fade in
+					setTimeout(function(){$('#payment_iframe').attr('style','opacity:1');},5000);
 				}else{
 					alert("A major error has occured, please try again later.");
 				}
@@ -600,8 +610,25 @@ function checkOrderStatus(){
 	return output;
 }
 
+function updateStock(){
+	$.ajax({
+			url:HOST,
+			async: false,
+			type:"POST",
+			crossDomain: true,
+			data: {	"f":"updateStock",
+					"token": token,
+					"orderID":orderID},
+			success: function(responseData, textStatus, jqXHR){
+					responseData = JSON.parse(responseData);
+				},
+			error: function (responseData, textStatus, errorThrown) {alert("A Major Error has occured, please try again later");}
+		});
+}
+
 function paymentComplete(){
 	var status = checkOrderStatus();
+	window.location = '#paymentComplete';
 	if(status=='0'){
 		$.ajax({
 			url:HOST,
@@ -623,6 +650,10 @@ function paymentComplete(){
 		$('#paymentCompleteTitle').html('Payment Complete');
 		$('#paymentCompleteContent').html('Your order has been successfully completed. You can check on order at any time using <b>Track Order</b> option in the menu bar.');	
 		$('#paymentCompleteBtns').html('<button onClick="window.location = '+"'#homeScreen'"+'">Done</button>');
+		updateStock();
+		clearCart();
+		orderID = 0;
+
 	}
 	
 	if(status=='2'){
@@ -712,3 +743,37 @@ function updateTracking(){
 	//go to order tracking page
 	window.location = '#trackOrder';
 }
+
+function updateDropOffLocationMap(){
+	if($('#dropOffLocation').val()=='Darling')
+		{
+			$('#selectDropOffLocationMap').attr('src','https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3331.810979698483!2d18.379740314712365!3d-33.376000501080235!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1dccb8d674307ebb%3A0x5a2fe4f21e3ed30a!2sThe+Flying+Pig!5e0!3m2!1sen!2sza!4v1502343476418');
+		}
+		
+	if($('#dropOffLocation').val()=='Grotto Bay')
+		{
+			$('#selectDropOffLocationMap').attr('src','https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d6653.979277415486!2d18.315763590942158!3d-33.50164669914919!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1dcc9673aad89e09%3A0x2bee873696a85ed!2sGrotto+Bay!5e0!3m2!1sen!2sza!4v1502343587402');
+		}
+	
+	if($('#dropOffLocation').val()=='Tableview')
+		{
+			$('#selectDropOffLocationMap').attr('src','https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3310.8211365788175!2d18.419045914731928!3d-33.92000272914862!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1dcc6766b7663daf%3A0xa6f560ca852d2fa2!2sStrand+Tower+Hotel!5e0!3m2!1sen!2sza!4v1502342319783');
+		}
+	
+	if($('#dropOffLocation').val()=='Cape Town')
+		{
+			$('#selectDropOffLocationMap').attr('src','https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3310.8211365788175!2d18.419045914731928!3d-33.92000272914862!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1dcc6766b7663daf%3A0xa6f560ca852d2fa2!2sStrand+Tower+Hotel!5e0!3m2!1sen!2sza!4v1502342319783');
+		}
+	
+	if($('#dropOffLocation').val()=='Hout Bay')
+		{
+			$('#selectDropOffLocationMap').attr('src','https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3305.9691387872604!2d18.360727014736376!3d-34.04466273563808!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1dcc6910c87974db%3A0x125d83276db6f072!2s13+Baviaanskloof+Rd%2C+Scott+Estate%2C+Cape+Town%2C+7806!5e0!3m2!1sen!2sza!4v1502343762609');
+		}
+}
+
+//Connect to return.php from iFrame
+window.addEventListener("message", function(event) {
+	paymentComplete();
+	$('#menu_btn').show();
+	disableMenu = false;
+});
