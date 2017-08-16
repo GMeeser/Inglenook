@@ -769,6 +769,10 @@ function updateDropOffLocationMap(){
 		{
 			$('#selectDropOffLocationMap').attr('src','https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3305.9691387872604!2d18.360727014736376!3d-34.04466273563808!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1dcc6910c87974db%3A0x125d83276db6f072!2s13+Baviaanskloof+Rd%2C+Scott+Estate%2C+Cape+Town%2C+7806!5e0!3m2!1sen!2sza!4v1502343762609');
 		}
+	if($('#dropOffLocation').val()=='AAA Travel')
+		{
+			$('#selectDropOffLocationMap').attr('src','https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3306.0141948179653!2d18.348203315214818!3d-34.04350698060827!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1dcc69249e093b05%3A0xbcf362f05c10a7c1!2sAAA+TRAVEL+AFRICA!5e0!3m2!1sen!2sza!4v1502910252612');
+		}
 }
 
 //Connect to return.php from iFrame

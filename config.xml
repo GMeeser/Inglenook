@@ -41,11 +41,11 @@
 
 		<gap:plugin name="cordova-plugin-whitelist" source="npm" />
 		
-		<icon src="res/icon/android/Logo_36.png" gap:platform="android" gap:density="ldpi" />
-		<icon src="res/icon/android/Logo_48.png" gap:platform="android" gap:density="mdpi" />
-		<icon src="res/icon/android/Logo_72.png" gap:platform="android" gap:density="hdpi" />
-		<icon src="res/icon/android/Logo_96.png" gap:platform="android" gap:density="xhdpi" />
-		<icon src="res/icon/android/Logo_144.png" gap:platform="android" gap:density="xxhdpi" />
+		<icon src="res/icon/Logo_36.png" gap:density="ldpi" />
+		<icon src="res/icon/Logo_48.png" gap:density="mdpi" />
+		<icon src="res/icon/Logo_72.png" gap:density="hdpi" />
+		<icon src="res/icon/Logo_96.png" gap:density="xhdpi" />
+		<icon src="res/icon/Logo_144.png" gap:density="xxhdpi" />
 <!--
 		<gap:splash src="res/screen/android/screen-ldpi-portrait.png" gap:platform="android" gap:density="ldpi" />
 		<gap:splash src="res/screen/android/screen-mdpi-portrait.png" gap:platform="android" gap:density="mdpi" />

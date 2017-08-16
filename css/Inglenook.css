@@ -135,7 +135,7 @@ h1, h2, h3, .title{
 }
 
 #homeScreen #veg, #art{
-	width: 49%;
+	width: 60%;
 	margin: 0%;
 	z-index: 2;
 	display: inline-block;
