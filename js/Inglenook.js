@@ -752,12 +752,12 @@ function updateDropOffLocationMap(){
 		
 	if($('#dropOffLocation').val()=='Grotto Bay')
 		{
-			$('#selectDropOffLocationMap').attr('src','https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d6653.979277415486!2d18.315763590942158!3d-33.50164669914919!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1dcc9673aad89e09%3A0x2bee873696a85ed!2sGrotto+Bay!5e0!3m2!1sen!2sza!4v1502343587402');
+			$('#selectDropOffLocationMap').attr('src','https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3326.921393563506!2d18.317444514716925!3d-33.503422207617916!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1dcc966dff60d5bf%3A0x4c989184ac0095a7!2sSea+Eagle+Dr%2C+Grotto+Bay!5e0!3m2!1sen!2sza!4v1502350074317');
 		}
 	
 	if($('#dropOffLocation').val()=='Tableview')
 		{
-			$('#selectDropOffLocationMap').attr('src','https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3310.8211365788175!2d18.419045914731928!3d-33.92000272914862!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1dcc6766b7663daf%3A0xa6f560ca852d2fa2!2sStrand+Tower+Hotel!5e0!3m2!1sen!2sza!4v1502342319783');
+			$('#selectDropOffLocationMap').attr('src','https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3314.5530466851847!2d18.481411314728458!3d-33.82384552415738!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1dcc5f0c4986ca2f%3A0xcf7de1573857d1e!2s52+Blaauwberg+Rd%2C+Table+View%2C+Cape+Town%2C+7441!5e0!3m2!1sen!2sza!4v1502350294167');
 		}
 	
 	if($('#dropOffLocation').val()=='Cape Town')
