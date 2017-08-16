@@ -156,6 +156,7 @@ h1, h2, h3, .title{
 	margin: 0px;
 	padding: 0px;
 	background: transparent;
+	text-align:center;
 }
 
 #login_msg, #resgister_msg{
