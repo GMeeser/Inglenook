@@ -200,10 +200,11 @@ h1, h2, h3, .title{
 }
 
 .productContainer h2{
-	color: #7b2154
+	color: #7b2154;
 	margin-top: 2px;
 	margin-bottom: 10px;
-	line-height: 20px;
+	line-height: 5vw;
+	font-size:5vw;
 }
 
 .stock{
