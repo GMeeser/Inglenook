@@ -773,6 +773,10 @@ function updateDropOffLocationMap(){
 		{
 			$('#selectDropOffLocationMap').attr('src','https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3306.0141948179653!2d18.348203315214818!3d-34.04350698060827!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1dcc69249e093b05%3A0xbcf362f05c10a7c1!2sAAA+TRAVEL+AFRICA!5e0!3m2!1sen!2sza!4v1502910252612');
 		}
+	if($('#dropOffLocation').val()=='Sea Point')
+		{	
+		$('#selectDropOffLocationMap').attr('src','https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3310.8204332304213!2d18.382563614731918!3d-33.92002082914944!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1dcc67219526464b%3A0xeecc1a34e0ebfbe2!2sSea+Point+Nursery!5e0!3m2!1sen!2sza!4v1502979445681');
+		}
 }
 
 //Connect to return.php from iFrame
