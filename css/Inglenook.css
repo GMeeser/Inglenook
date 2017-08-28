@@ -62,11 +62,22 @@ ul#menu li{
 	text-decoration:none;
 	color: white;
 	border: 1px #4a1332 solid;
+	text-shadow: none;
 }
 
 ul#menu a{
 	text-decoration: inherit;
 	color: inherit;
+}
+
+ul#menu #menuFooter{
+	text-align: center;
+	text-shadow: none;
+	color: white;
+	position: absolute;
+	width: 100%;
+	bottom: 5px;
+	font-family: tox;
 }
 
 img#logo_banner{
@@ -85,6 +96,39 @@ input{
 input::-moz-placeholder, input::placeholder{
 	color:#82945b !important;	
 	font-family: Tox;
+}
+
+.floatingButton{
+	position: fixed;
+	z-index: 1000;
+	display: block;
+	text-shadow: none;
+	overflow: hidden;
+	width: 14vw;
+	height: 14vw;
+	border-radius: 10vw;
+}
+
+#cartButton{
+	background-color: #7b2154;
+	color: white;
+	font-size: 10vw;
+	top: 5vw;
+	left: 80vw;
+}
+
+#cartButton i{
+	left: 2.1vw;
+	position: relative;
+}
+
+#cartButton label{
+	position: relative;
+	top: -10vw;
+	left: 6vw;
+	color: red;
+	font-weight: bold;
+	font-size: 4vw;
 }
 
 button{
@@ -253,9 +297,9 @@ h1, h2, h3, .title{
 }
 
 #addToCartImg{
-	height: 25vh;
+	height: 36vh;
 	left: 0px;
-	top: 0px;
+	top: -35px;
 	position: relative;
 	max-width: 100%;
 }
@@ -327,14 +371,14 @@ h1, h2, h3, .title{
 }
 
 .cartCount{
-	position: relative;
+	position: absolute;
 	width: 20px;
 	height: 20px;
 	background: red;
 	border-radius: 20px;
 	left: 100%;
 	margin-left: -25px;
-	top: 40%;
+	top: 30%;
 	color:white;
 }
 

@@ -16,16 +16,28 @@
 </head>
 	
 <body>
+<!-- Floating Buttons -->
+<div id="cartButton" class="floatingButton" onclick="populateCart();">
+	<i class="fa fa-shopping-cart"></i>
+    <label>0</label>
+</div>
+
 <!-- Menu -->
 <i id="menu_btn" class="fa fa-navicon fa-3x hide" onClick="openMenu()"></i>
 
 <ul id="menu">
-	<a href="#homeScreen"><li><i class="fa fa-cart-plus"></i> Products</li></a>
-   	<a href="#" onclick="populateCart();"><li><i class="fa fa-shopping-cart"></i> Checkout</li></a>
-   	<a onClick="updateTracking()"><li><i class="fa fa-crosshairs"></i> Track Order</li></a>
-    <a href="#newsLetter"><li><i class="fa fa-newspaper-o"></i> News Letter</li></a>
-	<a href="#" onClick="gotoProfileSettings()"><li><i class="fa fa-cogs"></i> Settings</li></a>
-    <a href="#" onclick="logout()"><li style="border-bottom-width:2px;"><i class="fa fa-sign-out"></i> Log Out</li></a>
+	<a href="#homeScreen" onClick="$('#menu_btn').show(250);" ><li><i class="fa fa-cart-plus fa-fw"></i> Products</li></a>
+   	<a href="#" onclick="populateCart();"><li><i class="fa fa-shopping-cart fa-fw"></i> Checkout</li></a>
+   	<a onClick="updateTracking()"><li><i class="fa fa-crosshairs fa-fw"></i> Track Order</li></a>
+    <a href="#newsLetter" onClick="$('#cartButton').hide(250);"><li><i class="fa fa-newspaper-o fa-fw"></i> News Letter</li></a>
+    <a href="#contactUs" ><li><i class="fa fa-comments-o fa-fw"></i> Contact Us</li></a>
+	<a href="#" onClick="gotoProfileSettings()" id="menuSettings"><li><i class="fa fa-cogs fa-fw"></i> Settings</li></a>
+    <a href="#" id="menuLogoutBtn" onclick="logout()"><li style="border-bottom-width:2px;"><i class="fa fa-sign-out fa-fw"></i> Log Out</li></a>
+    
+    <!-- Menu footer -->
+    <div id="menuFooter">
+    	<a href="https://inglenookapp.co.za/Ts&Cs.pdf">Terms & Conditions</a>
+    </div>
 </ul>
 
 <!-- loading -->
@@ -139,7 +151,7 @@
 	</div>
     <div id="addToCartContainer">
     	<div id="addToCart">
-				<div align="right"><i style="color:black !important" class="fa fa-2x fa-times" onclick="$('#addToCartContainer').hide()"></i></div>
+				<div align="right" style="position:absolute; left:69vw; z-index:10;"><i style="color:black !important" class="fa fa-2x fa-times" onclick="$('#addToCartContainer').hide()"></i></div>
         		<img id="addToCartImg" src="" />
                 <div class="textpadding">
                 	<h2 id="addToCartTitle"></h2>
@@ -277,13 +289,13 @@
 </div>
 
 <!-- Contact us page -->
-<div id="contactUS" data-role="page">
+<div id="contactUs" data-role="page">
 	<img id="logo_banner" src="images/Logo.png" />
 	<div data-role="content">
 		<h1 id="confirm_title">Contact Us</h1>
         <div id="contactUsContainer">
         	<label>
-            
+            	As we are an Organic organisation we rely on your comments and feedback to help us grow. Please feel free to contact us via the link below to pass on any relevant information.<p/>
             </label>
         	<a href="mailto:orders@inglenookfarm.co.za">orders@inglenookfarm.co.za</a>
         </div>

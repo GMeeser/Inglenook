@@ -27,13 +27,20 @@ function onDeviceReady() {
         $(element).click(function(){closeMenu();});
     });
 	
+	//hide cart floating button
+	$('#cartButton').hide();
+	
+	//hide profile settings from menu
+	$('#menuSettings').hide();
+	$('#menuLogoutBtn').html('<li style="border-bottom-width:2px;"><i class="fa fa-sign-in fa-fw"></i> Log In</li>');
+	$('#menuLogoutBtn').attr('onClick','');
+	$('#menuLogoutBtn').attr('href','#logIn');
 
 	$('#menu_btn').removeClass('hide');
 	console.log(window.location.hash);
 	if(window.location.hash!='#paymentComplete'){window.location = "#homeScreen"; orderID=0;}else{
 		paymentComplete();	
 	}
-	isLogedIn();
 	$.mobile.loadingMessage = false;
 	$("#login_password").keydown(function (e){if (e.keyCode == 13){$("#login_btn").click();}});
 	$("#register_confirm_password").keydown(function (e){if (e.keyCode == 13){$("#register_btn").click();}});
@@ -46,7 +53,11 @@ function validateToken(){
 		crossDomain: true,
 		data: {"f":"validateToken","token": token},
 		success: function(responseData, textStatus, jqXHR) {
-				//console.log("Token Valid");
+				console.log("Token Valid");
+				$('#menuSettings').show();
+				$('#menuLogoutBtn').html('<li style="border-bottom-width:2px;"><i class="fa fa-sign-out fa-fw"></i> Log Out</li>');
+				$('#menuLogoutBtn').attr('onClick','logout()');
+				$('#menuLogoutBtn').attr('href','#');
 			},
 		error: function (responseData, textStatus, errorThrown) {
 				//console.log("Token Invalid");
@@ -58,15 +69,19 @@ function validateToken(){
 }
 
 function isLogedIn(){
+	console.log("Login Check");
 	if(token==0){
 		$('#menu_btn').addClass('hide');
 		window.location = "#logIn";
+		$.mobile.navigate.history.stack.slice(-2,2);
+		console.log("Not Logged In");
+		return false;
 	}
 	validateToken();
 }
 
 function openMenu(){
-	if(token!=0 && disableMenu==false){
+	if(disableMenu==false){
 		$("#menu").addClass('open');
 	}
 }
@@ -80,6 +95,8 @@ function arrangeHome(){
 }
 
 function login(){
+	$("#login_msg").html("Processing...");
+	
 	$.ajax({
 		url:HOST,
 		type:"POST",
@@ -90,9 +107,17 @@ function login(){
 			token = responseData.token;
 			if(token!=0){
 				localStorage.token = token;
-				window.location = "#homeScreen";
-				$('#menu_btn').removeClass('hide');
-				setTimeout(arrangeHome,250);
+				populateCart();
+				
+				$("#login_email").val('');
+				$("#login_password").val('');
+				$("#login_msg").html(" ");
+				
+				$('#menuSettings').show();
+				$('#menuLogoutBtn').html('<li style="border-bottom-width:2px;"><i class="fa fa-sign-out fa-fw"></i> Log Out</li>');
+				$('#menuLogoutBtn').attr('onClick','logout()');
+				$('#menuLogoutBtn').attr('href','#');
+				
 			}else{
 				$("#login_msg").html(responseData.error);
 			}
@@ -106,6 +131,7 @@ function logout(){
 	token = 0;
 	$('#menu_btn').addClass('hide');
 	window.location = '#logIn';
+	$('#cartButton').hide(250);
 }
 
 function isEmail(email) {
@@ -197,6 +223,9 @@ function addProductItem(product){
 }
 
 function gotoProfileSettings(){
+	$('#menu_btn').show(250);
+	disableMenu=false;
+	$("#settings_msg").html("Loading");
 	$.ajax({
 		url:HOST,
 		type:"POST",
@@ -304,10 +333,23 @@ function products(filter){
 	$('#products_title').html(title);
 	//switch to product page
 	window.location = '#products';
+	//show floating cart button
+	if(cart.length>0){
+		$('#cartButton').show(250);
+	}
 	
 }
 
 function getProductItem(itemID){
+	//Show loading data
+	$("#addToCartImg").attr('src','images/Loading-Icon-250.gif');
+	$("#addToCartTitle").html('Loading...');
+	$("#addToCartStock").html('');
+	$("#addToCartPrice").html('');
+	$("#addToCartBtn").attr('onclick','');
+	addToCartMax = 0;
+	$("#addToCartAddNumber").html(0);
+	
 	$.ajax({
 		url:HOST,
 		type:"POST",
@@ -325,17 +367,21 @@ function getProductItem(itemID){
 				addToCartMax = responseData.stock;
 				$("#addToCartAddNumber").html(parseInt($("#cartCountLabel"+responseData.itemID).html()));
 			});
-	    	},
+	
+    	},
 		error: function (responseData, textStatus, errorThrown) {}
 	});
 	
-	$("#addToCartContainer").show();	
+	//show addItem, hide buttons
+	$("#addToCartContainer").show(250);
+	$('#cartButton').hide(250);
+	$("#menu_btn").hide(250);	
 }
 
 function addToCartIncrement(){
 	$('#addToCartAddNumber').html(parseInt($('#addToCartAddNumber').html())+1);
-	if(parseInt($('#addToCartAddNumber').html())>20){
-		$('#addToCartAddNumber').html(20);
+	if(parseInt($('#addToCartAddNumber').html())>10){
+		$('#addToCartAddNumber').html(10);
 	}
 	if(parseInt($('#addToCartAddNumber').html())>addToCartMax){
 		$('#addToCartAddNumber').html(addToCartMax);
@@ -363,7 +409,11 @@ function addToCart(productID, Price, Stock){
 		cart.push({ID:productID,title:$("#addToCartTitle").html(),price:Price, stock:Stock, amount:parseInt($("#addToCartAddNumber").html())});
 	}
 	
-	$("#addToCartContainer").hide();
+	$('#cartButton label').html(cart.length);
+	$('#cartButton').show(250);
+	$('#menu_btn').show(250);
+	
+	$("#addToCartContainer").hide(250);
 	$('#cartCount'+productID).show();
 	$('#cartCountLabel'+productID).html(parseInt($("#addToCartAddNumber").html()));
 }
@@ -377,6 +427,9 @@ function cleanCart(){
 }
 
 function populateCart(){
+	$('#menu_btn').show(250);
+	disableMenu=false;
+	
 	var total = 0;
 	cleanCart();
 	console.log('Cart Size: '+cart.length);
@@ -394,6 +447,7 @@ function populateCart(){
 	$("#cartTable").append('<tr><td></td><td><td></td></td><td id="myBagTotal" align="left">R'+total+'</td></tr>');
 	cartTotal = total;
 	window.location = "#myBag";
+	$('#cartButton').hide(250);
 }
 
 function increaseCartItem(i){
@@ -451,7 +505,7 @@ function showFrame(){
 }
 
 function createOrder(){
-		$.ajax({
+	$.ajax({
 		url:HOST,
 		type:"POST",
 		crossDomain: true,
@@ -462,13 +516,13 @@ function createOrder(){
 				responseData = JSON.parse(responseData);
 				orderID = responseData.orderID;
 				localStorage.orderID = orderID;
-	    	},
+			},
 		error: function (responseData, textStatus, errorThrown) {alert("A Major Error has occured, please try again later");}
 	});	
 }
 
 function addDropOffLocation(){
-		$.ajax({
+	$.ajax({
 		url:HOST,
 		type:"POST",
 		crossDomain: true,
@@ -506,6 +560,7 @@ function cancelOrder(){
 }
 
 function proceed(){
+	if(isLogedIn()==false){return 0;}
 	createOrder();
 	updateDropOffLocationMap();
 	window.location = "#selectDropOffLocation";	
@@ -720,6 +775,9 @@ function addTrackingInfo(orderID){
 }
 
 function updateTracking(){
+	$('#menu_btn').show(250);
+	disableMenu=false;
+	
 	var orderList = null;
 	//clear tracking page
 	$('#trackingContainer').html('');
@@ -742,6 +800,7 @@ function updateTracking(){
 	$.each(orderList,function(index, value){addTrackingInfo(value);});
 	//go to order tracking page
 	window.location = '#trackOrder';
+	$('#cartButton').hide(250);
 }
 
 function updateDropOffLocationMap(){
@@ -781,7 +840,7 @@ function updateDropOffLocationMap(){
 
 //Connect to return.php from iFrame
 window.addEventListener("message", function(event) {
-	paymentComplete();
 	$('#menu_btn').show();
 	disableMenu = false;
+	paymentComplete();
 });
