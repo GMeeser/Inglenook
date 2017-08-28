@@ -61,7 +61,7 @@ function validateToken(){
 			},
 		error: function (responseData, textStatus, errorThrown) {
 				console.log("Token Invalid");
-				$('#menu_btn').hide();
+				//$('#menu_btn').hide();
 				token=0;
 				window.location = "#logIn";
 			}
@@ -71,7 +71,7 @@ function validateToken(){
 function isLogedIn(){
 	console.log("Login Check");
 	if(token==0){
-		$('#menu_btn').hide();
+		//$('#menu_btn').hide();
 		window.location = "#logIn";
 		$.mobile.navigate.history.stack.slice(-2,2);
 		console.log("Not Logged In");
@@ -129,7 +129,7 @@ function login(){
 function logout(){
 	localStorage.token = 0;
 	token = 0;
-	$('#menu_btn').hide();
+	//$('#menu_btn').hide();
 	window.location = '#logIn';
 	$('#cartButton').hide(250);
 }
