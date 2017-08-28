@@ -13,15 +13,13 @@
 		<preference name="fullscreen" value="false" />
 		<preference name="webviewbounce" value="false" />
 		<preference name="DisallowOverscroll" value="true"/>
-		<preference name="disallowOverscroll" value="true" />
 		<preference name="prerendered-icon" value="false" />
 		<preference name="stay-in-webview" value="true" />
-		<preference name="ios-statusbarstyle" value="default" />
+		<preference name="ios-statusbarstyle" value="black" />
 		<preference name="detect-data-types" value="true" />
 		<preference name="exit-on-suspend" value="false" />
 		<preference name="show-splash-screen-spinner" value="true" />
 		<preference name="auto-hide-splash-screen" value="true" />
-		<preference name="SplashShowOnlyFirstTime" value="true" />
 		<!--<preference name="SplashScreenDelay" value="500" />-->
 		<preference name="disable-cursor" value="false" />
 		<preference name="android-minSdkVersion" value="14" />
@@ -34,6 +32,12 @@
 		<preference name="BackgroundColor" value="0xffffffff "/>
 
 		<gap:platform name="android">
+			<access origin="*" />
+			<allow-intent href="*" />
+			<allow-navigation href="*" />
+		</gap:platform>
+		
+		<gap:platform name="ios">
 			<access origin="*" />
 			<allow-intent href="*" />
 			<allow-navigation href="*" />
