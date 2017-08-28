@@ -298,6 +298,7 @@ h1, h2, h3, .title{
 
 #addToCartImg{
 	height: 36vh;
+	width: 100%;
 	left: 0px;
 	top: -35px;
 	position: relative;

@@ -5,7 +5,7 @@
 		versionCode="1"
 		version   = "1.0">
 		<name>Inglenook Farm</name>
-		<description></description>
+		<description>Buy fresh produce straight from the farm.</description>
 		<author href="meeser.co.za" email="grant@meeser.co.za">G.Meeser</author>
 		<!--<preference name="phonegap-version" value="3.3.0" />-->
 		<preference name="orientation" value="portrait" />
@@ -40,6 +40,8 @@
 		</gap:platform>
 
 		<gap:plugin name="cordova-plugin-whitelist" source="npm" />
+		
+		<icon src="icon.png" />
 		
 		<icon src="res/icon/Logo_36.png" gap:density="ldpi" />
 		<icon src="res/icon/Logo_48.png" gap:density="mdpi" />
