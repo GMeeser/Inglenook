@@ -36,7 +36,7 @@ function onDeviceReady() {
 	$('#menuLogoutBtn').attr('onClick','');
 	$('#menuLogoutBtn').attr('href','#logIn');
 
-	$('#menu_btn').removeClass('hide');
+	$('#menu_btn').show();
 	console.log(window.location.hash);
 	if(window.location.hash!='#paymentComplete'){window.location = "#homeScreen"; orderID=0;}else{
 		paymentComplete();	
@@ -60,8 +60,8 @@ function validateToken(){
 				$('#menuLogoutBtn').attr('href','#');
 			},
 		error: function (responseData, textStatus, errorThrown) {
-				//console.log("Token Invalid");
-				$('#menu_btn').addClass('hide');
+				console.log("Token Invalid");
+				$('#menu_btn').hide();
 				token=0;
 				window.location = "#logIn";
 			}
@@ -71,7 +71,7 @@ function validateToken(){
 function isLogedIn(){
 	console.log("Login Check");
 	if(token==0){
-		$('#menu_btn').addClass('hide');
+		$('#menu_btn').hide();
 		window.location = "#logIn";
 		$.mobile.navigate.history.stack.slice(-2,2);
 		console.log("Not Logged In");
@@ -129,7 +129,7 @@ function login(){
 function logout(){
 	localStorage.token = 0;
 	token = 0;
-	$('#menu_btn').addClass('hide');
+	$('#menu_btn').hide();
 	window.location = '#logIn';
 	$('#cartButton').hide(250);
 }
@@ -172,7 +172,7 @@ function register(){
 			if(token!=0){
 				localStorage.token = token;
 				window.location = "#homeScreen";
-				$('#menu_btn').removeClass('hide');
+				$('#menu_btn').show();
 			}else{
 				$("#register_msg").html(responseData.error);
 			}
