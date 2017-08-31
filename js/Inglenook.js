@@ -37,6 +37,7 @@ function onDeviceReady() {
 	$('#menuLogoutBtn').attr('href','#logIn');
 
 	$('#menu_btn').show();
+	
 	console.log(window.location.hash);
 	if(window.location.hash!='#paymentComplete'){window.location = "#homeScreen"; orderID=0;}else{
 		paymentComplete();	
@@ -836,6 +837,10 @@ function updateDropOffLocationMap(){
 		{	
 		$('#selectDropOffLocationMap').attr('src','https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3310.8204332304213!2d18.382563614731918!3d-33.92002082914944!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1dcc67219526464b%3A0xeecc1a34e0ebfbe2!2sSea+Point+Nursery!5e0!3m2!1sen!2sza!4v1502979445681');
 		}
+	if($('#dropOffLocation').val()=='Camps Bay - Sunset Sessions')
+		{	
+		$('#selectDropOffLocationMap').attr('src','https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3309.562644398707!2d18.3775548586834!3d-33.95237523619917!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1dcc6652e4343943%3A0xc1e09fbac40fda3d!2s69+Victoria+Rd%2C+Camps+Bay%2C+Cape+Town%2C+8040!5e0!3m2!1sen!2sza!4v1504160728823');
+		}
 }
 
 //Connect to return.php from iFrame
@@ -844,3 +849,35 @@ window.addEventListener("message", function(event) {
 	disableMenu = false;
 	paymentComplete();
 });
+
+function newsletter(){
+	$('#newsLetterContainer').html('<h1>Loading...</h1>');
+	//get list of all active orders
+	window.location = '#newsLetter';
+	$.ajax({
+			url:'https://inglenookapp.co.za/newsletter.php',
+			type:"POST",
+			crossDomain: true,
+			success: function(responseData, textStatus, jqXHR){
+					$('#newsLetterContainer').html(responseData);
+				},
+			error: function (responseData, textStatus, errorThrown) {alert("A Major Error has occured, please try again later");}
+		});	
+		
+}
+
+function ourStory(){
+	$('#storyContainer').html('<h1>Loading...</h1>');
+	//get list of all active orders
+	window.location = '#story';
+	$.ajax({
+			url:'https://inglenookapp.co.za/story.php',
+			type:"POST",
+			crossDomain: true,
+			success: function(responseData, textStatus, jqXHR){
+					$('#storyContainer').html(responseData);
+				},
+			error: function (responseData, textStatus, errorThrown) {alert("A Major Error has occured, please try again later");}
+		});	
+		
+}

@@ -23,13 +23,14 @@
 </div>
 
 <!-- Menu -->
-<i id="menu_btn" class="fa fa-navicon fa-3x hide" onClick="openMenu()"></i>
+<i id="menu_btn" class="fa fa-navicon fa-3x" onClick="openMenu()"></i>
 
 <ul id="menu">
 	<a href="#homeScreen" onClick="$('#menu_btn').show(250);" ><li><i class="fa fa-cart-plus fa-fw"></i> Products</li></a>
    	<a href="#" onclick="populateCart();"><li><i class="fa fa-shopping-cart fa-fw"></i> Checkout</li></a>
    	<a onClick="updateTracking()"><li><i class="fa fa-crosshairs fa-fw"></i> Track Order</li></a>
-    <a href="#newsLetter" onClick="$('#cartButton').hide(250);"><li><i class="fa fa-newspaper-o fa-fw"></i> News Letter</li></a>
+    <a href="#" onClick="$('#cartButton').hide(250); newsletter();"><li><i class="fa fa-newspaper-o fa-fw"></i> News Letter</li></a>
+    <a href="#" onClick="$('#cartButton').hide(250); ourStory();"><li><i class="fa fa-book fa-fw"></i> Our Story</li></a>
     <a href="#contactUs" ><li><i class="fa fa-comments-o fa-fw"></i> Contact Us</li></a>
 	<a href="#" onClick="gotoProfileSettings()" id="menuSettings"><li><i class="fa fa-cogs fa-fw"></i> Settings</li></a>
     <a href="#" id="menuLogoutBtn" onclick="logout()"><li style="border-bottom-width:2px;"><i class="fa fa-sign-out fa-fw"></i> Log Out</li></a>
@@ -285,7 +286,15 @@
 	<img id="logo_banner" src="images/Logo.png" onClick="showFrame();" />
 	<div data-role="content">
 	</div>
-    <div id="newsLetterContainer" style="height:65vh;"></div>
+    <div id="newsLetterContainer"></div>
+</div>
+
+<!-- OurStory page -->
+<div id="story" data-role="page">
+	<img id="logo_banner" src="images/Logo.png" onClick="showFrame();" />
+	<div data-role="content">
+	</div>
+    <div id="storyContainer"></div>
 </div>
 
 <!-- Contact us page -->
