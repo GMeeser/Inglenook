@@ -2,12 +2,11 @@
 	<widget xmlns = "http://www.w3.org/ns/widgets"
 		xmlns:gap = "http://phonegap.com/ns/1.0"
 		id        = "za.co.meeser.inglenook"
-		versionCode="75"
-		version   = "1.0.1">
+		versionCode="78"
+		version   = "1.0.2">
 		<name>Inglenook Farm</name>
 		<description>Buy fresh produce straight from the farm.</description>
 		<author href="meeser.co.za" email="grant@meeser.co.za">G.Meeser</author>
-		<!--<preference name="phonegap-version" value="3.3.0" />-->
 		<preference name="orientation" value="portrait" />
 		<preference name="target-device" value="universal" />
 		<preference name="fullscreen" value="false" />
@@ -22,7 +21,7 @@
 		<preference name="exit-on-suspend" value="false" />
 		<preference name="show-splash-screen-spinner" value="true" />
 		<preference name="auto-hide-splash-screen" value="true" />
-		<!--<preference name="SplashScreenDelay" value="500" />-->
+		<preference name="SplashScreenDelay" value="2500" />
 		<preference name="disable-cursor" value="false" />
 		<preference name="android-minSdkVersion" value="14" />
 		<preference name="android-targetSdkVersion" value="14" />

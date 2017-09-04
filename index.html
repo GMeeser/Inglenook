@@ -28,7 +28,7 @@
 <ul id="menu">
 	<a href="#homeScreen" onClick="$('#menu_btn').show(250);" ><li><i class="fa fa-cart-plus fa-fw"></i> Products</li></a>
    	<a href="#" onclick="populateCart();"><li><i class="fa fa-shopping-cart fa-fw"></i> Checkout</li></a>
-   	<a onClick="updateTracking()"><li><i class="fa fa-crosshairs fa-fw"></i> Track Order</li></a>
+   	<a onClick="updateTracking()" id="menuTrackOrder"><li><i class="fa fa-crosshairs fa-fw"></i> Track Order</li></a>
     <a href="#" onClick="$('#cartButton').hide(250); newsletter();"><li><i class="fa fa-newspaper-o fa-fw"></i> News Letter</li></a>
     <a href="#" onClick="$('#cartButton').hide(250); ourStory();"><li><i class="fa fa-book fa-fw"></i> Our Story</li></a>
     <a href="#contactUs" ><li><i class="fa fa-comments-o fa-fw"></i> Contact Us</li></a>
@@ -54,7 +54,7 @@
 <div id="homeScreen" data-role="page" style="overflow:hidden;">
 	<img id="logo_banner" src="images/Logo.png" />
 	<div data-role="content">
-		<img id="veg" src="images/fresh vegetables no texture.png" onclick="products('veggies')" />
+		<img id="veg" src="images/organic vegetables.png" onclick="products('veggies')" />
 	    <img id="art" src="images/Artisanal goods no texture_02.png" onclick="products('artisanal')" />
 	</div>
     <img id="veggies" src="images/Veggies at bottom.png"/>
@@ -197,6 +197,8 @@
             <option value="Cape Town">Cape Town - Strand Tower Hotel</option>
             <option value="Hout Bay">Hout Bay - 13 Baviaanskloof Road</option>
             <option value="AAA Travel">Hout Bay - AAA Travel Africa</option>
+            <option value="Camps Bay - Sunset Sessions">Camps Bay - Sunset Sessions</option>
+            <option value="Yzerfontein">Yzerfontein - Urban Design &amp; Decor</option>
         </select>
         <div class="iframe_container">
         	<iframe id="selectDropOffLocationMap"></iframe>

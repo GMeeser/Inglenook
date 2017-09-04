@@ -32,6 +32,7 @@ function onDeviceReady() {
 	
 	//hide profile settings from menu
 	$('#menuSettings').hide();
+	$('#menuTrackOrder').hide();
 	$('#menuLogoutBtn').html('<li style="border-bottom-width:2px;"><i class="fa fa-sign-in fa-fw"></i> Log In</li>');
 	$('#menuLogoutBtn').attr('onClick','');
 	$('#menuLogoutBtn').attr('href','#logIn');
@@ -56,6 +57,7 @@ function validateToken(){
 		success: function(responseData, textStatus, jqXHR) {
 				console.log("Token Valid");
 				$('#menuSettings').show();
+				$('#menuTrackOrder').show();
 				$('#menuLogoutBtn').html('<li style="border-bottom-width:2px;"><i class="fa fa-sign-out fa-fw"></i> Log Out</li>');
 				$('#menuLogoutBtn').attr('onClick','logout()');
 				$('#menuLogoutBtn').attr('href','#');
@@ -115,6 +117,7 @@ function login(){
 				$("#login_msg").html(" ");
 				
 				$('#menuSettings').show();
+				$('#menuTrackOrder').show();
 				$('#menuLogoutBtn').html('<li style="border-bottom-width:2px;"><i class="fa fa-sign-out fa-fw"></i> Log Out</li>');
 				$('#menuLogoutBtn').attr('onClick','logout()');
 				$('#menuLogoutBtn').attr('href','#');
@@ -588,6 +591,8 @@ function confirmOrder(location){
 }
 
 function checkout(){
+		payOrder('NEW');
+		/* remove card selection form card vault 
 		$.ajax({
 		url:HOST,
 		type:"POST",
@@ -610,6 +615,7 @@ function checkout(){
 		error: function (responseData, textStatus, errorThrown) {alert("A Major Error has occured, please try again later");}
 	});		
 	window.location = '#selectCard';
+	*/
 }
 
 function payOrder(cardVaultID){
@@ -841,6 +847,11 @@ function updateDropOffLocationMap(){
 		{	
 		$('#selectDropOffLocationMap').attr('src','https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3309.562644398707!2d18.3775548586834!3d-33.95237523619917!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1dcc6652e4343943%3A0xc1e09fbac40fda3d!2s69+Victoria+Rd%2C+Camps+Bay%2C+Cape+Town%2C+8040!5e0!3m2!1sen!2sza!4v1504160728823');
 		}
+		if($('#dropOffLocation').val()=='Yzerfontein')
+		{	
+		$('#selectDropOffLocationMap').attr('src','https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3333.0077742262747!2d18.159095114711196!3d-33.3447466994801!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1dcca5ebf8460529%3A0x65b662681862e5a0!2s5+Main+Rd%2C+Yzerfontein%2C+7351!5e0!3m2!1sen!2sza!4v1504505937518');
+		}
+		
 }
 
 //Connect to return.php from iFrame
