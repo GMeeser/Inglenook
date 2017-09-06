@@ -2,8 +2,8 @@
 	<widget xmlns = "http://www.w3.org/ns/widgets"
 		xmlns:gap = "http://phonegap.com/ns/1.0"
 		id        = "za.co.meeser.inglenook"
-		versionCode="78"
-		version   = "1.0.2">
+		versionCode="79"
+		version   = "1.0.3">
 		<name>Inglenook Farm</name>
 		<description>Buy fresh produce straight from the farm.</description>
 		<author href="meeser.co.za" email="grant@meeser.co.za">G.Meeser</author>
@@ -38,9 +38,13 @@
 		</gap:platform>
 		
 		<gap:platform name="ios">
-			<access origin="*" />
-			<allow-intent href="*" />
-			<allow-navigation href="*" />
+			<access origin="*play2play.co.za" />
+			<allow-intent href="*play2play.co.za" />
+			<allow-navigation href="*play2play.co.za" />
+			
+			<access origin="*paygate.co.za" />
+			<allow-intent href="*paygate.co.za" />
+			<allow-navigation href="*paygate.co.za" />
 		</gap:platform>
 
 		<gap:plugin name="cordova-plugin-whitelist" source="npm" />
