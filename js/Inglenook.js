@@ -744,57 +744,6 @@ function updateStock(){
 		});
 }
 
-function paymentComplete(){
-	var status = checkOrderStatus();
-	window.location = '#paymentComplete';
-	if(status=='0'){
-		$.ajax({
-			url:HOST,
-			async: false,
-			type:"POST",
-			crossDomain: true,
-			data: {	"f":"checkPaymentStatus",
-					"token": token,
-					"orderID":orderID},
-			success: function(responseData, textStatus, jqXHR){
-					responseData = JSON.parse(responseData);
-					status = responseData.status;
-				},
-			error: function (responseData, textStatus, errorThrown) {alert("A Major Error has occured, please try again later");}
-		});	
-	}
-	
-	if(status=='1'){
-		$('#paymentCompleteTitle').html('Payment Complete');
-		$('#paymentCompleteContent').html('Your order has been successfully completed. You can check on order at any time using <b>Track Order</b> option in the menu bar.');	
-		$('#paymentCompleteBtns').html('<button onClick="window.location = '+"'#homeScreen'"+'">Done</button>');
-		updateStock();
-		clearCart();
-		orderID = 0;
-
-	}
-	
-	if(status=='2'){
-		$('#paymentCompleteTitle').html('Payment Failed');
-		$('#paymentCompleteContent').html('The transaction was declined.');
-		$('#paymentCompleteBtns').html('<button onClick="cancelOrder()">Cancel Order</button>');
-		$('#paymentCompleteBtns').html('<button onClick="payOrder(localStorage.cardValtID)">Try Again</button>'+$('#paymentCompleteBtns').html());	
-	}
-	
-	if(status=='3' || status=='4'){
-		$('#paymentCompleteTitle').html('Payment Cancelled');
-		$('#paymentCompleteContent').html('The transaction was cancelled.');
-		$('#paymentCompleteBtns').html('<button onClick="cancelOrder()">Cancel Order</button>');
-		$('#paymentCompleteBtns').html('<button onClick="payOrder(localStorage.cardValtID)">Try Again</button>'+$('#paymentCompleteBtns').html());
-			
-	}
-	
-	if(status=='5'){
-		$('#paymentCompleteTitle').html('Payment Failed');
-		$('#paymentCompleteContent').html('A seriouse error has occured, please contact us so we can help you.');
-	}
-}
-
 function addTrackingInfo(orderID){
 	//get order info
 	var status = 0;
@@ -909,13 +858,6 @@ function updateDropOffLocationMap(){
 		}
 		
 }
-
-//Connect to return.php from iFrame
-window.addEventListener("message", function(event) {
-	$('#menu_btn').show();
-	disableMenu = false;
-	paymentComplete();
-});
 
 function newsletter(){
 	$('#newsLetterContainer').html('<h1>Loading...</h1>');
