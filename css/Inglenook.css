@@ -438,8 +438,20 @@ h1, h2, h3, .title{
 }
 
 #paymentPage div[data-role=content]{
-	background:white;
-	padding:0px;
+	
+}
+
+#paymentPage .select{
+	width: 30%;
+	display: inline-block;
+}
+
+#paymentPage #paymentCVVContainer{
+	width:27%;
+	display: inline-block;
+	position: relative;
+	top: -16px;
+	padding-left: 10%;
 }
 
 #payment_iframe{

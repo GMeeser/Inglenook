@@ -1,6 +1,6 @@
 //Variables
 var token = localStorage.token;
-var HOST = "https://inglenookapp.co.za/api.php";
+var HOST = "https://inglenookapp.co.za/test/api.php";
 //var HOST = "http://home.meeser.co.za:900/grant/Apps/Server%20Backends/Inglenook/api.php";
 //var HOST = "http://server1/grant/Apps/Server%20Backends/Inglenook/api.php";
 
@@ -618,15 +618,54 @@ function checkout(){
 	*/
 }
 
-function payOrder(cardVaultID){
-	var returnURL = 'https://inglenookapp.co.za/return.php';
-	$('#payment_iframe').attr('style','');
-	window.location = '#paymentPage';
-	$('#menu_btn').hide();
-	disableMenu = true;
+function goToGateway(){
 	
+	$('#paymentCVV').val('')
+	
+	var year = (new Date()).getFullYear();
+	$('#paymentYear').html();
+	for(i=0;i<20;i++){
+		$('#paymentYear').append('<option value="'+year+'">'+year+'</option>');
+		year++;
+	}
+	$('#paymentMsg').html(' ');
+	window.location = '#paymentPage';
+}
+
+function validateCardData(){
+	$('#paymentContinueBtn').attr('onClick','');
+	$('#paymentContinueBtn').attr('disabled','disabled');
+	
+	//check input  lengths
+	if($('#paymentFirstName').val().length < 2){return false;}
+	if($('#paymentLastName').val().length < 2){return false;}
+	if($('#paymentCardNumber').val().length < 13){return false;}
+	if($('#paymentCVV').val().length < 3){return false;}
+	
+	//validate expirydate
+	if($('#paymentYear').val() == (new Date()).getFullYear()){
+		if($('#paymentMonth').val() <= (new Date()).getMonth()+1){
+				return false;
+		}
+	}
+	
+	//check that credit ard number only contains numbers
+	if((/^\d+$/.test($('#paymentCardNumber').val()))==false){
+		return false;
+	}
+	
+	$('#paymentContinueBtn').attr('onClick','payOrder()');
+	$('#paymentContinueBtn').removeAttr('disabled');
+		
+}
+
+function payOrder(){
+	var cardVaultID = $('#paymentVaultID').val();
 	if(cardVaultID=='NEW'){cardVaultID='';}
 	localStorage.cardValtID = cardVaultID;
+	
+	$('#paymentMsg').html('Processing Payment');
+	
 	$.ajax({
 		url:HOST,
 		type:"POST",
@@ -635,15 +674,32 @@ function payOrder(cardVaultID){
 				"token": token,
 				"orderID":orderID,
 				"cardVaultID":cardVaultID,
-				"returnURL": returnURL},
+				"cardNumber": $('#paymentCardNumber').val(),
+				"cardExpiryDate": $('#paymentMonth').val()+$('#paymentYear').val(),
+				"cvv": $('#paymentCVV').val(),
+				"name": $('#paymentFirstName').val()+' '+$('#paymentLastName').val()
+		},
 		success: function(responseData, textStatus, jqXHR){
 				responseData = JSON.parse(responseData);
-				if(responseData.msg!='Failed'){
-					$("#payment_iframe").attr('src','https://inglenookapp.co.za/redirect.php?payRequestID='+responseData.PAY_REQUEST_ID+'&checksum='+responseData.CHECKSUM);
-					//fade in
-					setTimeout(function(){$('#payment_iframe').attr('style','opacity:1');},5000);
+				if(responseData.msg=='Success'){
+					$('#paymentCompleteTitle').html('Payment Complete');
+					$('#paymentCompleteContent').html('Your order has been successfully completed. You can check on order at any time using <b>Track Order</b> option in the menu bar.');	
+					$('#paymentCompleteBtns').html('<button onClick="window.location = '+"'#homeScreen'"+'">Done</button>');
+					window.location = '#paymentComplete';
+					//clearCart();
+					orderID = 0;
+				}else if(responseData.msg =='An error occured please try again.'){
+					$('#paymentCompleteTitle').html('Oh No');
+					$('#paymentCompleteContent').html('An error occured while processing your payment, please try again.');
+					$('#paymentCompleteBtns').html('<button onClick="goToGateway()">Try Again</button>');	
+					$('#paymentCompleteBtns').append('<button onClick="window.location = '+"'#homeScreen'"+'">Cancel</button>');
+					window.location = '#paymentComplete';
 				}else{
-					alert("A major error has occured, please try again later.");
+					$('#paymentCompleteTitle').html('Payment Failed');
+					$('#paymentCompleteContent').html('Your payment has failed due to:</p><b>'+responseData.reason+'</b>');
+					$('#paymentCompleteBtns').html('<button onClick="goToGateway()">Try Again</button>');	
+					$('#paymentCompleteBtns').append('<button onClick="window.location = '+"'#homeScreen'"+'">Cancel</button>');
+					window.location = '#paymentComplete';
 				}
 	    	},
 		error: function (responseData, textStatus, errorThrown) {alert("A Major Error has occured, please try again later");}
