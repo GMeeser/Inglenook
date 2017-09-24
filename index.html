@@ -191,23 +191,12 @@
 	<img id="logo_banner" src="images/Logo.png" />
 	<div data-role="content">
 		<h1>Select Drop Off Point</h1>
-        <select id="dropOffLocation" onChange="updateDropOffLocationMap();">
-        	<option value="Darling">Darling - Flying Pig</option>
-            <option value="Grotto Bay">Grotto Bay - Security House</option>
-            <option value="Tableview">Tableview - German Deli</option>
-            <option value="Sea Point">Sea Point - Sea Point Nursery</option>
-            <option value="Cape Town">Cape Town - Strand Tower Hotel</option>
-            <option value="Hout Bay">Hout Bay - 13 Baviaanskloof Road</option>
-            <option value="AAA Travel">Hout Bay - AAA Travel Africa</option>
-            <option value="Camps Bay - Sunset Sessions">Camps Bay - Sunset Sessions</option>
-            <option value="Yzerfontein">Yzerfontein - Urban Design &amp; Decor</option>
+        <select id="dropOffLocation" onChange="checkForDelivery()">
+        	
         </select>
-        <div class="iframe_container">
-        	<iframe id="selectDropOffLocationMap"></iframe>
-        </div>
         <div align="center">
-        	<button id="selectDropOffLoactionBtn" onClick="addDropOffLocation()">Confirm Order</button>
-            <button id="selectDropOffLoactionCancelBtnn" onClick="cancelOrder()">Cancel Order</button>
+        	<button id="selectDropOffLoactionBtn" onClick="addDropOffLocation($('#dropOffLocation').val())">Confirm Order</button>
+            <button id="selectDropOffLoactionCancelBtn" onClick="cancelOrder()">Cancel Order</button>
         </div>
 	</div>
 </div>
@@ -225,7 +214,7 @@
             <div id="confirmOrderDropOffPoint"></div>
             <div id="confirmOrderBtns">
                 <button id="confirmOrderCancelBtn" onClick="cancelOrder()">Cancel Order</button>
-                <button id="confirmOrderCheckoutBtn" onClick="goToGateway()">Checkout</button>
+                <button id="confirmOrderCheckoutBtn" onClick="checkout()">Checkout</button>
             </div>
             <div id="inset_form"></div>
         </div>
@@ -241,7 +230,7 @@
         	
         </form>
         <div align="center">
-        	<button id="selectCardBtn" onClick="payOrder($('input[name=card]:checked').val())">Checkout</button>
+        	<button id="selectCardBtn" onClick="goToGateway($('input[name=card]:checked').val())">Checkout</button>
             <button id="selectCardCancelBtn" onClick="cancelOrder()">Cancel Order</button>
         </div>
 	</div>
@@ -252,9 +241,9 @@
 	<img id="logo_banner" src="images/Logo.png" />
 	<div data-role="content">
     	<h1>Payment</h1>
-    	<input onKeyPress="validateCardData()" onChange="validateCardData()" onClick="validateCardData()" placeholder="First Name" id="paymentFirstName" type="text" />
-        <input onKeyPress="validateCardData()" onChange="validateCardData()" onClick="validateCardData()" placeholder="Last Name" id="paymentLastName" type="text" />
-        <input onKeyPress="validateCardData()" onChange="validateCardData()" onClick="validateCardData()" placeholder="Credit Card Number" id="paymentCardNumber" type="text" />
+    	<input onKeyDown="validateCardData()" onChange="validateCardData()" onClick="validateCardData()" placeholder="First Name" id="paymentFirstName" type="text" />
+        <input onKeyDown="validateCardData()" onChange="validateCardData()" onClick="validateCardData()" placeholder="Last Name" id="paymentLastName" type="text" />
+        <input onKeyDown="validateCardData()" onChange="validateCardData()" onClick="validateCardData()" placeholder="Credit Card Number" id="paymentCardNumber" type="text" />
         <div class="select">
             <select onChange="validateCardData()" onClick="validateCardData()" id="paymentMonth">
                 <option value="01">01</option>
@@ -280,7 +269,7 @@
          
          <div id="paymentBTNContianer">
          	<button id="paymentContinueBtn" disabled>Continue</button>
-            <button id="paymentCancel">Cancel</button>
+            <button id="paymentCancel" onClick="cancelOrder()">Cancel</button>
          </div>
 	</div>
 </div>
@@ -293,6 +282,46 @@
       	<div id="paymentCompleteContent"></div>
         <div id="paymentCompleteBtns" align="center">
             
+        </div>
+	</div>
+</div>
+
+<!-- Select Address Page -->
+<div id="selectAddress" data-role="page">
+	<img id="logo_banner" src="images/Logo.png" />
+	<div data-role="content">
+		<h1>Delivery Address</h1>
+        <div id="addressSelectContainer">
+            <select id="addressSelect">
+                <option value="NEW" selected >Add New Address</option>
+            </select>
+        </div>
+        <div id="selectAddressBtnContainer">
+        	<button onclick="goToAddress()">Continue</button>
+            <button onClick="cancelOrder()">Cancel</button>
+        </div>
+	</div>
+</div>
+
+<!-- Address Page -->
+<div id="address" data-role="page">
+	<img id="logo_banner" src="images/Logo.png" />
+	<div data-role="content">
+		<h1>Delivery Address</h1>
+        <div id="addressContainer">
+            <input type="text" id="addressLine1" placeholder="Address Line 1"/>
+            <input type="text" id="addressLine2" placeholder="Address Line 2"/>
+            <select id="addressSuburb">
+            
+            </select>
+            <input type="text" id="addressCity" value="Cape Town" disabled placeholder="City"/>
+            <input type="text" id="addressProvince" value="Western Cape" disabled placeholder="Province"/>
+            <input type="text" id="addressCountry" value="South Africa" disabled placeholder="Country"/>
+            <input type="text" id="addressPostalCode" placeholder="Postal Code"/>
+        </div>
+        <div id="addressBtnContainer">
+        	<button onClick="addDropOffLocation('');">Continue</button>
+            <button onClick="cancelOrder()">Cancel</button>
         </div>
 	</div>
 </div>

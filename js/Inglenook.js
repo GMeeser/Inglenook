@@ -9,8 +9,8 @@ var cart = [];
 var cartTotal = 0;
 
 var orderID = localStorage.orderID;
-var requiresDeposit = true;
-var deposit = 0;
+var requiresDeliveryFee = true;
+var deliveryFee = 0;
 
 var disableMenu = false;
 
@@ -39,13 +39,56 @@ function onDeviceReady() {
 
 	$('#menu_btn').show();
 	
-	console.log(window.location.hash);
-	if(window.location.hash!='#paymentComplete'){window.location = "#homeScreen"; orderID=0;}else{
-		paymentComplete();	
-	}
+	console.log();
+	window.location = "#homeScreen"; 
+	orderID=0;
+	
+	updateDropOffLocations();
+	updateAddressSuburb();
+	
 	$.mobile.loadingMessage = false;
 	$("#login_password").keydown(function (e){if (e.keyCode == 13){$("#login_btn").click();}});
 	$("#register_confirm_password").keydown(function (e){if (e.keyCode == 13){$("#register_btn").click();}});
+}
+
+function updateDropOffLocations(){
+	$.ajax({
+		url:HOST,
+		type:"POST",
+		crossDomain: true,
+		data: {	"f":"getDropOffLocations"},
+		success: function(responseData, textStatus, jqXHR){
+					responseData = JSON.parse(responseData);
+					//Add drop off locations from server
+					$('#dropOffLocation').html('<optgroup label="Drop Off Locations">');
+					$.each(responseData.locations,function(index,value){
+						$('#dropOffLocation').append('<option value="'+value+'">'+value+'</option>');
+					});
+					$('#dropOffLocation').append('</optgroup>');
+					$('#dropOffLocation').append('<optgroup label="Other">');
+					$('#dropOffLocation').append('<option value="Delivery">Add Delivery Address');
+					$('#dropOffLocation').append('</optgroup>');
+	    	},
+		error: function (responseData, textStatus, errorThrown) {alert("A Major Error has occured, please try again later");}
+	});	
+}
+
+function updateAddressSuburb(){
+	$.ajax({
+		url:HOST,
+		type:"POST",
+		crossDomain: true,
+		data: {	"f":"getSuburbs"},
+		success: function(responseData, textStatus, jqXHR){
+					responseData = JSON.parse(responseData);
+					//Add drop off locations from server
+					$('#addressSuburb').html('');
+					$.each(responseData.suburbs,function(index,value){
+						$('#addressSuburb').append('<option value="'+value+'">'+value+'</option>');
+					});
+	    	},
+		error: function (responseData, textStatus, errorThrown) {alert("A Major Error has occured, please try again later");}
+	});	
 }
 
 function validateToken(){
@@ -91,10 +134,6 @@ function openMenu(){
 
 function closeMenu(){
 	$("#menu").removeClass('open');
-}
-
-function arrangeHome(){
-	
 }
 
 function login(){
@@ -328,7 +367,7 @@ function clearProducts(){
 function products(filter){
 	var title = '';
 	//Set page title based on filter
-	if(filter=='veggies'){title = 'Fresh Vegetables';}
+	if(filter=='veggies'){title = 'Organic Vegetables';}
 	if(filter=='artisanal'){title = 'Artisanal Goods';}
 	//load content
 	clearProducts();
@@ -504,10 +543,6 @@ function clearCart(){
 	populateCart();
 }
 
-function showFrame(){
-	$('#newsLetterContainer').html('<iframe height="100%" id="newsLetterFrame" frameborder="0" width="100%" src="https://m.takealot.com"></iframe>');
-}
-
 function createOrder(){
 	$.ajax({
 		url:HOST,
@@ -525,19 +560,29 @@ function createOrder(){
 	});	
 }
 
-function addDropOffLocation(){
+function addDropOffLocation(location){
+	//compile address
+	if(location==''){
+		location = $('#addressLine1').val()+', '+$('#addressLine2').val()+', '+$('#addressSuburb').val()+', '+$('#addressCity').val()+', '+$('#addressProvince').val()+', '+$('#addressCountry').val()+', '+$('#addressPostalCode').val();
+	}
+	
+	//check if new address
+	if($('#addressSelect').val()=='NEW'){
+		addAddress();
+	}
+	
 	$.ajax({
 		url:HOST,
 		type:"POST",
 		crossDomain: true,
 		data: {	"f":"addDropOffLocation",
 				"token": token,
-				"location":$('#dropOffLocation').val(),
+				"location":location,
 				"orderID": orderID},
 		success: function(responseData, textStatus, jqXHR){
 					responseData = JSON.parse(responseData);
-					if(responseData.requiresDeposit==0){requiresDeposit=false;}else{requiresDeposit=true;}
-					deposit = responseData.deposit;
+					if(responseData.requiresDeliveryFee==0){requiresDeliveryFee=false;}else{requiresDeliveryFee=true;}
+					deliveryFee = responseData.deliveryFee;
 					confirmOrder(responseData.location);
 	    	},
 		error: function (responseData, textStatus, errorThrown) {alert("A Major Error has occured, please try again later");}
@@ -572,14 +617,20 @@ function proceed(){
 
 function confirmOrder(location){
 	var total = 0;
+	//Products
 	$("#confirmOrderCartTable").html('<tr id="confirmOrderTitleRow"><td class="confirmOrderCol1">Item</td><td class="confirmOrderCol3">Amount</td><td class="confirmOrderCol4">Price</td></tr>');
 	for(i=0;i<cart.length;i++){
 		total = total+(cart[i].price*cart[i].amount);
 		$("#confirmOrderCartTable").append('<tr><td class="confirmOrderCol1">'+cart[i].title+'</td><td id="amount-'+i+'" align="center">'+cart[i].amount+'</td><td id="price-'+i+'" align="left">R'+(cart[i].price*cart[i].amount)+'</td></tr>'	);
 	}
-	if(requiresDeposit){
-		$("#confirmOrderCartTable").append('<tr><td colspan="2">Bag Deposit</td><td style="border-top:black 1px solid; border-bottom:1px black solid;" align="left">R'+deposit+'</td></tr>');
-		total = total+deposit;
+	
+	//deposit
+	$("#confirmOrderCartTable").append('<tr><td colspan="2">Bag Deposit</td><td style="border-top:black 1px solid;" align="left">R0</td></tr>');
+	
+	//delivery fee
+	if(requiresDeliveryFee){
+		$("#confirmOrderCartTable").append('<tr><td colspan="2">Delivery Fee</td><td align="left">R'+deliveryFee+'</td></tr>');
+		total = total+deliveryFee;
 	}
 	$("#confirmOrderCartTable").append('<tr id="confirmOrderTitleTotalRow"><td></td><td></td><td>Total</td></tr>');
 	$("#confirmOrderCartTable").append('<tr><td><td></td></td><td id="confirmOrderTotal" align="left">R'+total+'</td></tr>');
@@ -591,8 +642,8 @@ function confirmOrder(location){
 }
 
 function checkout(){
-		payOrder('NEW');
-		/* remove card selection form card vault 
+		//payOrder('NEW');
+		
 		$.ajax({
 		url:HOST,
 		type:"POST",
@@ -606,8 +657,17 @@ function checkout(){
 					$.each(responseData, function(index, value){
 							console.log(value[0]);
 							var imagePath;
-							if(value[0].cardType=='Visa'){imagePath = 'visalg.png';}else if(value[0].cardType=='MasterCard'){imagePath='MCard.jpg';}else{imagePath = 'american-express-logo4.jpg';}
+							//select correct image
+							if(value[0].cardType=='Visa'){
+								imagePath = 'visalg.png';
+							}else if(value[0].cardType=='MasterCard'){
+								imagePath='MCard.jpg';
+							}else{
+								imagePath = 'american-express-logo4.jpg';
+							}
+							
 							$('#cards').append('<label><input type="radio" value="'+value[0].cardVaultID+'" name="card"><div class="card"><img src="images/'+imagePath+'" /><b>'+value[0].cardNumber+'</b></div></label>');
+							
 						});
 					$('#cards').append('<label><input type="radio" value="NEW" name="card"><div class="card">Add New Card.</div></label>');
 					
@@ -615,12 +675,13 @@ function checkout(){
 		error: function (responseData, textStatus, errorThrown) {alert("A Major Error has occured, please try again later");}
 	});		
 	window.location = '#selectCard';
-	*/
+
 }
 
-function goToGateway(){
+function goToGateway(cardVault){
 	
-	$('#paymentCVV').val('')
+	$('#paymentVaultID').val(cardVault);
+	$('#paymentCVV').val('');
 	
 	var year = (new Date()).getFullYear();
 	$('#paymentYear').html();
@@ -629,6 +690,24 @@ function goToGateway(){
 		year++;
 	}
 	$('#paymentMsg').html(' ');
+	
+	$.ajax({
+		url:HOST,
+		async: false,
+		type:"POST",
+		crossDomain: true,
+		data: {	"f":"getCard",
+				"token": token,
+				"vaultID":cardVault},
+		success: function(responseData, textStatus, jqXHR){
+				responseData = JSON.parse(responseData);
+				$('#paymentCardNumber').val(responseData.cardNumber);
+				$('#paymentMonth').val(responseData.cardExpiryDate.substring(0,2));
+				$('#paymentYear').val(responseData.cardExpiryDate.substring(2));
+	    	},
+		error: function (responseData, textStatus, errorThrown) {alert("A Major Error has occured, please try again later");}
+	});	
+	
 	window.location = '#paymentPage';
 }
 
@@ -649,10 +728,12 @@ function validateCardData(){
 		}
 	}
 	
+	/*
 	//check that credit ard number only contains numbers
 	if((/^\d+$/.test($('#paymentCardNumber').val()))==false){
 		return false;
 	}
+	*/
 	
 	$('#paymentContinueBtn').attr('onClick','payOrder()');
 	$('#paymentContinueBtn').removeAttr('disabled');
@@ -691,13 +772,13 @@ function payOrder(){
 				}else if(responseData.msg =='An error occured please try again.'){
 					$('#paymentCompleteTitle').html('Oh No');
 					$('#paymentCompleteContent').html('An error occured while processing your payment, please try again.');
-					$('#paymentCompleteBtns').html('<button onClick="goToGateway()">Try Again</button>');	
+					$('#paymentCompleteBtns').html('<button onClick="checkout()">Try Again</button>');	
 					$('#paymentCompleteBtns').append('<button onClick="window.location = '+"'#homeScreen'"+'">Cancel</button>');
 					window.location = '#paymentComplete';
 				}else{
 					$('#paymentCompleteTitle').html('Payment Failed');
 					$('#paymentCompleteContent').html('Your payment has failed due to:</p><b>'+responseData.reason+'</b>');
-					$('#paymentCompleteBtns').html('<button onClick="goToGateway()">Try Again</button>');	
+					$('#paymentCompleteBtns').html('<button onClick="checkout()">Try Again</button>');	
 					$('#paymentCompleteBtns').append('<button onClick="window.location = '+"'#homeScreen'"+'">Cancel</button>');
 					window.location = '#paymentComplete';
 				}
@@ -889,4 +970,89 @@ function ourStory(){
 			error: function (responseData, textStatus, errorThrown) {alert("A Major Error has occured, please try again later");}
 		});	
 		
+}
+
+function checkForDelivery(){
+	if($('#dropOffLocation').val()=='Delivery'){
+		$('#selectDropOffLoactionBtn').attr('onClick',"goToSelectAddress()");
+		$('#selectDropOffLoactionBtn').html('Add Delivery Address');
+	}else{
+		$('#selectDropOffLoactionBtn').attr('onClick',"addDropOffLocation($('#dropOffLocation').val())");
+		$('#selectDropOffLoactionBtn').html('Confirm Order');
+	}
+}
+
+function goToSelectAddress(){
+	$.ajax({
+		url:HOST,
+		type:"POST",
+		crossDomain: true,
+		data: {	"f":"getAddressList",
+				"token":token},
+		success: function(responseData, textStatus, jqXHR){
+					responseData = JSON.parse(responseData);
+					//get addresses from server
+					$('#addressSelect').html('<option value="NEW" selected >Add New Address</option>');
+					$.each(responseData.addresses,function(index,value){
+						$('#addressSelect').append('<option value="'+value.addressID+'">'+value.addressLine1+'</option>');
+					});
+					window.location = "#selectAddress";
+	    	},
+		error: function (responseData, textStatus, errorThrown) {alert("A Major Error has occured, please try again later");}
+	});		
+}
+
+function goToAddress(){
+	if($('#addressSelect').val()=='NEW'){
+		$('#addressLine1').val('');
+		$('#addressLine2').val('');
+		$('#addressCity').val('Cape Town');
+		$('#addressProvince').val('Western Cape');
+		$('#addressCountry').val('South Africa');
+		$('#addressPostalCode').val('');
+		window.location = "#address";
+		return false
+	}else{
+		var addressID = $('#addressSelect').val();
+	}
+	$.ajax({
+		url:HOST,
+		type:"POST",
+		crossDomain: true,
+		data: {	"f":"getAddress",
+				"token": token,
+				"addressID":addressID},
+		success: function(responseData, textStatus, jqXHR){
+					responseData = JSON.parse(responseData);
+					//load address to form
+					$('#addressLine1').val(responseData.addressLine1);
+					$('#addressLine2').val(responseData.addressLine2);
+					$('#addressSuburb').val(responseData.suburb);
+					$('#addressCity').val(responseData.city);
+					$('#addressProvince').val(responseData.province);
+					$('#addressCountry').val(responseData.country);
+					$('#addressPostalCode').val(responseData.postalCode);
+					window.location = "#address";
+	    	},
+		error: function (responseData, textStatus, errorThrown) {alert("A Major Error has occured, please try again later");}
+	});		
+}
+
+function addAddress(){
+	$.ajax({
+		url:HOST,
+		type:"POST",
+		crossDomain: true,
+		data: {	"f":"addAddress",
+				"token": token,
+				"addressLine1":$('#addressLine1').val(),
+				"addressLine2":$('#addressLine2').val(),
+				"suburb":$('#addressSuburb').val(),
+				"city":$('#addressCity').val(),
+				"province":$('#addressProvince').val(),
+				"country":$('#addressCountry').val(),
+				"postalCode":$('#addressPostalCode').val(),},
+		success: function(responseData, textStatus, jqXHR){},
+		error: function (responseData, textStatus, errorThrown) {alert("A Major Error has occured, please try again later");}
+	});		
 }
