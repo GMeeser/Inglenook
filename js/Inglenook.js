@@ -1,6 +1,6 @@
 //Variables
 var token = localStorage.token;
-var HOST = "https://inglenookapp.co.za/test/api.php";
+var HOST = "https://inglenookapp.co.za/v2/api.php";
 //var HOST = "http://home.meeser.co.za:900/grant/Apps/Server%20Backends/Inglenook/api.php";
 //var HOST = "http://server1/grant/Apps/Server%20Backends/Inglenook/api.php";
 

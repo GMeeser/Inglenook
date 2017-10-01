@@ -2,8 +2,8 @@
 	<widget xmlns = "http://www.w3.org/ns/widgets"
 		xmlns:gap = "http://phonegap.com/ns/1.0"
 		id        = "za.co.meeser.inglenook"
-		versionCode="79"
-		version   = "1.0.3">
+		versionCode="90"
+		version   = "1.1.0">
 		<name>Inglenook Farm</name>
 		<description>Buy fresh produce straight from the farm.</description>
 		<author href="meeser.co.za" email="grant@meeser.co.za">G.Meeser</author>
