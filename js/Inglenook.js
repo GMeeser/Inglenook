@@ -14,6 +14,8 @@ var deliveryFee = 0;
 
 var disableMenu = false;
 
+$.ajaxSetup({cache:false});
+
 // Wait for PhoneGap to load
 document.addEventListener("deviceready", onDeviceReady, false);
 $(document).ready(onDeviceReady);
@@ -55,6 +57,7 @@ function updateDropOffLocations(){
 	$.ajax({
 		url:HOST,
 		type:"POST",
+		cache:false,
 		crossDomain: true,
 		data: {	"f":"getDropOffLocations"},
 		success: function(responseData, textStatus, jqXHR){
@@ -77,6 +80,7 @@ function updateAddressSuburb(){
 	$.ajax({
 		url:HOST,
 		type:"POST",
+		cache:false,
 		crossDomain: true,
 		data: {	"f":"getSuburbs"},
 		success: function(responseData, textStatus, jqXHR){
@@ -95,6 +99,7 @@ function validateToken(){
 	$.ajax({
 		url:HOST,
 		type:"POST",
+		cache:false,
 		crossDomain: true,
 		data: {"f":"validateToken","token": token},
 		success: function(responseData, textStatus, jqXHR) {
@@ -142,6 +147,7 @@ function login(){
 	$.ajax({
 		url:HOST,
 		type:"POST",
+		cache:false,
 		crossDomain: true,
 		data: {"f":"login","email": $("#login_email").val(),"password": $("#login_password").val()},
 		success: function(responseData, textStatus, jqXHR) {
@@ -203,6 +209,7 @@ function register(){
 	$.ajax({
 		url:HOST,
 		type:"POST",
+		cache:false,
 		crossDomain: true,
 		data: {	"f":"register",
 			"email": $("#register_email").val(),
@@ -228,6 +235,7 @@ function forgotPassword(){
 		$.ajax({
 		url:HOST,
 		type:"POST",
+		cache:false,
 		crossDomain: true,
 		data: {	"f":"forgotPassword",
 			"email": $("#forgotPassword_email").val()},
@@ -272,6 +280,7 @@ function gotoProfileSettings(){
 	$.ajax({
 		url:HOST,
 		type:"POST",
+		cache:false,
 		crossDomain: true,
 		data: {	"f":"getProfile",
 			"token": token},
@@ -303,6 +312,7 @@ function updateProfile(){
 	$.ajax({
 		url:HOST,
 		type:"POST",
+		cache:false,
 		crossDomain: true,
 		data: {	"f":"updateProfile",
 			"name": $("#settings_name").val(),
@@ -330,6 +340,7 @@ function changePassword(){
 	$.ajax({
 		url:HOST,
 		type:"POST",
+		cache:false,
 		crossDomain: true,
 		data: {	"f":"changePassword",
 			"oldPassword": $("#changePassword_old_password").val(),
@@ -347,6 +358,7 @@ function loadProducts(filter){
 	$.ajax({
 		url:HOST,
 		type:"POST",
+		cache:false,
 		crossDomain: true,
 		data: {	"f":"products",
 			"filter": filter},
@@ -396,6 +408,7 @@ function getProductItem(itemID){
 	$.ajax({
 		url:HOST,
 		type:"POST",
+		cache:false,
 		crossDomain: true,
 		data: {	"f":"product",
 			"productID": itemID},
@@ -547,6 +560,7 @@ function createOrder(){
 	$.ajax({
 		url:HOST,
 		type:"POST",
+		cache:false,
 		crossDomain: true,
 		data: {	"f":"createOrder",
 				"token": token,
@@ -574,6 +588,7 @@ function addDropOffLocation(location){
 	$.ajax({
 		url:HOST,
 		type:"POST",
+		cache:false,
 		crossDomain: true,
 		data: {	"f":"addDropOffLocation",
 				"token": token,
@@ -594,6 +609,7 @@ function cancelOrder(){
 		$.ajax({
 		url:HOST,
 		type:"POST",
+		cache:false,
 		crossDomain: true,
 		data: {	"f":"cancelOrder",
 				"token": token,
@@ -647,6 +663,7 @@ function checkout(){
 		$.ajax({
 		url:HOST,
 		type:"POST",
+		cache:false,
 		crossDomain: true,
 		data: {	"f":"getCards",
 				"token": token
@@ -695,6 +712,7 @@ function goToGateway(cardVault){
 		url:HOST,
 		async: false,
 		type:"POST",
+		cache:false,
 		crossDomain: true,
 		data: {	"f":"getCard",
 				"token": token,
@@ -750,6 +768,7 @@ function payOrder(){
 	$.ajax({
 		url:HOST,
 		type:"POST",
+		cache:false,
 		crossDomain: true,
 		data: {	"f":"payForOrder",
 				"token": token,
@@ -794,6 +813,7 @@ function checkOrderStatus(){
 		url:HOST,
 		async: false,
 		type:"POST",
+		cache:false,
 		crossDomain: true,
 		data: {	"f":"checkOrderStatus",
 				"token": token,
@@ -814,6 +834,7 @@ function updateStock(){
 			url:HOST,
 			async: false,
 			type:"POST",
+		cache:false,
 			crossDomain: true,
 			data: {	"f":"updateStock",
 					"token": token,
@@ -833,6 +854,7 @@ function addTrackingInfo(orderID){
 			url:HOST,
 			async: false,
 			type:"POST",
+		cache:false,
 			crossDomain: true,
 			data: {	"f":"getOrderInfo",
 					"token": token,
@@ -879,6 +901,7 @@ function updateTracking(){
 			url:HOST,
 			async: false,
 			type:"POST",
+		cache:false,
 			crossDomain: true,
 			data: {	"f":"getTrackingOrders",
 					"token": token},
@@ -947,6 +970,7 @@ function newsletter(){
 	$.ajax({
 			url:'https://inglenookapp.co.za/newsletter.php',
 			type:"POST",
+		cache:false,
 			crossDomain: true,
 			success: function(responseData, textStatus, jqXHR){
 					$('#newsLetterContainer').html(responseData);
@@ -963,6 +987,7 @@ function ourStory(){
 	$.ajax({
 			url:'https://inglenookapp.co.za/story.php',
 			type:"POST",
+		cache:false,
 			crossDomain: true,
 			success: function(responseData, textStatus, jqXHR){
 					$('#storyContainer').html(responseData);
@@ -986,6 +1011,7 @@ function goToSelectAddress(){
 	$.ajax({
 		url:HOST,
 		type:"POST",
+		cache:false,
 		crossDomain: true,
 		data: {	"f":"getAddressList",
 				"token":token},
@@ -1018,6 +1044,7 @@ function goToAddress(){
 	$.ajax({
 		url:HOST,
 		type:"POST",
+		cache:false,
 		crossDomain: true,
 		data: {	"f":"getAddress",
 				"token": token,
@@ -1042,6 +1069,7 @@ function addAddress(){
 	$.ajax({
 		url:HOST,
 		type:"POST",
+		cache:false,
 		crossDomain: true,
 		data: {	"f":"addAddress",
 				"token": token,

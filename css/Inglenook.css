@@ -447,11 +447,11 @@ h1, h2, h3, .title{
 }
 
 #paymentPage #paymentCVVContainer{
-	width:27%;
+	width:25%;
 	display: inline-block;
 	position: relative;
 	top: -16px;
-	padding-left: 9%;
+	padding-left: 5%;
 }
 
 #payment_iframe{
