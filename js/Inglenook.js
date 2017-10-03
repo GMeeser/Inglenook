@@ -72,7 +72,7 @@ function updateDropOffLocations(){
 					$('#dropOffLocation').append('<option value="Delivery">Add Delivery Address');
 					$('#dropOffLocation').append('</optgroup>');
 	    	},
-		error: function (responseData, textStatus, errorThrown) {alert("A Major Error has occured, please try again later");}
+		error: function (responseData, textStatus, errorThrown) {connectionError();}
 	});	
 }
 
@@ -91,8 +91,12 @@ function updateAddressSuburb(){
 						$('#addressSuburb').append('<option value="'+value+'">'+value+'</option>');
 					});
 	    	},
-		error: function (responseData, textStatus, errorThrown) {alert("A Major Error has occured, please try again later");}
+		error: function (responseData, textStatus, errorThrown) {connectionError();}
 	});	
+}
+
+function connectionError(){
+	window.location = '#connectionError';	
 }
 
 function validateToken(){
@@ -222,7 +226,13 @@ function register(){
 			if(token!=0){
 				localStorage.token = token;
 				window.location = "#homeScreen";
-				$('#menu_btn').show();
+				
+				$('#menuSettings').show();
+				$('#menuTrackOrder').show();
+				$('#menuLogoutBtn').html('<li style="border-bottom-width:2px;"><i class="fa fa-sign-out fa-fw"></i> Log Out</li>');
+				$('#menuLogoutBtn').attr('onClick','logout()');
+				$('#menuLogoutBtn').attr('href','#');
+				
 			}else{
 				$("#register_msg").html(responseData.error);
 			}
@@ -570,7 +580,7 @@ function createOrder(){
 				orderID = responseData.orderID;
 				localStorage.orderID = orderID;
 			},
-		error: function (responseData, textStatus, errorThrown) {alert("A Major Error has occured, please try again later");}
+		error: function (responseData, textStatus, errorThrown) {connectionError();}
 	});	
 }
 
@@ -600,7 +610,7 @@ function addDropOffLocation(location){
 					deliveryFee = responseData.deliveryFee;
 					confirmOrder(responseData.location);
 	    	},
-		error: function (responseData, textStatus, errorThrown) {alert("A Major Error has occured, please try again later");}
+		error: function (responseData, textStatus, errorThrown) {connectionError();}
 	});	
 }
 
@@ -620,7 +630,7 @@ function cancelOrder(){
 				localStorage.orderID=0;
 				localStorage.removeItem('orderID');
 	    	},
-		error: function (responseData, textStatus, errorThrown) {alert("A Major Error has occured, please try again later");}
+		error: function (responseData, textStatus, errorThrown) {connectionError();}
 	});	
 }
 
@@ -689,7 +699,7 @@ function checkout(){
 					$('#cards').append('<label><input type="radio" value="NEW" name="card"><div class="card">Add New Card.</div></label>');
 					
 	    		},
-		error: function (responseData, textStatus, errorThrown) {alert("A Major Error has occured, please try again later");}
+		error: function (responseData, textStatus, errorThrown) {connectionError();}
 	});		
 	window.location = '#selectCard';
 
@@ -723,7 +733,7 @@ function goToGateway(cardVault){
 				$('#paymentMonth').val(responseData.cardExpiryDate.substring(0,2));
 				$('#paymentYear').val(responseData.cardExpiryDate.substring(2));
 	    	},
-		error: function (responseData, textStatus, errorThrown) {alert("A Major Error has occured, please try again later");}
+		error: function (responseData, textStatus, errorThrown) {connectionError();}
 	});	
 	
 	window.location = '#paymentPage';
@@ -802,7 +812,7 @@ function payOrder(){
 					window.location = '#paymentComplete';
 				}
 	    	},
-		error: function (responseData, textStatus, errorThrown) {alert("A Major Error has occured, please try again later");}
+		error: function (responseData, textStatus, errorThrown) {connectionError();}
 	});		
 }
 
@@ -823,7 +833,7 @@ function checkOrderStatus(){
 				output = responseData.status;
 				console.log(responseData);
 	    	},
-		error: function (responseData, textStatus, errorThrown) {alert("A Major Error has occured, please try again later");}
+		error: function (responseData, textStatus, errorThrown) {connectionError();}
 	});	
 	
 	return output;
@@ -842,7 +852,7 @@ function updateStock(){
 			success: function(responseData, textStatus, jqXHR){
 					responseData = JSON.parse(responseData);
 				},
-			error: function (responseData, textStatus, errorThrown) {alert("A Major Error has occured, please try again later");}
+			error: function (responseData, textStatus, errorThrown) {connectionError();}
 		});
 }
 
@@ -866,7 +876,7 @@ function addTrackingInfo(orderID){
 					dropoff = responseData.dropoff;
 					
 				},
-			error: function (responseData, textStatus, errorThrown) {alert("A Major Error has occured, please try again later");}
+			error: function (responseData, textStatus, errorThrown) {connectionError();}
 		});	
 		
 	//Expand dropoff details
@@ -910,7 +920,7 @@ function updateTracking(){
 					orderList = responseData.orderList;
 					
 				},
-			error: function (responseData, textStatus, errorThrown) {alert("A Major Error has occured, please try again later");}
+			error: function (responseData, textStatus, errorThrown) {connectionError();}
 		});	
 	//add order list to tracking page
 	$.each(orderList,function(index, value){addTrackingInfo(value);});
@@ -975,7 +985,7 @@ function newsletter(){
 			success: function(responseData, textStatus, jqXHR){
 					$('#newsLetterContainer').html(responseData);
 				},
-			error: function (responseData, textStatus, errorThrown) {alert("A Major Error has occured, please try again later");}
+			error: function (responseData, textStatus, errorThrown) {connectionError();}
 		});	
 		
 }
@@ -992,7 +1002,7 @@ function ourStory(){
 			success: function(responseData, textStatus, jqXHR){
 					$('#storyContainer').html(responseData);
 				},
-			error: function (responseData, textStatus, errorThrown) {alert("A Major Error has occured, please try again later");}
+			error: function (responseData, textStatus, errorThrown) {connectionError();}
 		});	
 		
 }
@@ -1024,7 +1034,7 @@ function goToSelectAddress(){
 					});
 					window.location = "#selectAddress";
 	    	},
-		error: function (responseData, textStatus, errorThrown) {alert("A Major Error has occured, please try again later");}
+		error: function (responseData, textStatus, errorThrown) {connectionError();}
 	});		
 }
 
@@ -1061,7 +1071,7 @@ function goToAddress(){
 					$('#addressPostalCode').val(responseData.postalCode);
 					window.location = "#address";
 	    	},
-		error: function (responseData, textStatus, errorThrown) {alert("A Major Error has occured, please try again later");}
+		error: function (responseData, textStatus, errorThrown) {connectionError();}
 	});		
 }
 
@@ -1081,6 +1091,6 @@ function addAddress(){
 				"country":$('#addressCountry').val(),
 				"postalCode":$('#addressPostalCode').val(),},
 		success: function(responseData, textStatus, jqXHR){},
-		error: function (responseData, textStatus, errorThrown) {alert("A Major Error has occured, please try again later");}
+		error: function (responseData, textStatus, errorThrown) {connectionError();}
 	});		
 }
