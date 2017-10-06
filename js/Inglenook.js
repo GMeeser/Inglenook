@@ -299,7 +299,7 @@ function gotoProfileSettings(){
 				$("#settings_name").val(responseData.name);
 				$("#settings_contactNumber").val(responseData.contactNumber);
 				$("#settings_email").val(responseData.email);
-				$("#settings_msg").val(' ');
+				$("#settings_msg").html(' ');
 	    	},
 		error: function (responseData, textStatus, errorThrown) {$("#settings_msg").html("Connection Error, Please Try Again Later.");}
 	});	
@@ -588,11 +588,11 @@ function addDropOffLocation(location){
 	//compile address
 	if(location==''){
 		location = $('#addressLine1').val()+', '+$('#addressLine2').val()+', '+$('#addressSuburb').val()+', '+$('#addressCity').val()+', '+$('#addressProvince').val()+', '+$('#addressCountry').val()+', '+$('#addressPostalCode').val();
-	}
 	
-	//check if new address
-	if($('#addressSelect').val()=='NEW'){
-		addAddress();
+		//check if new address
+		if($('#addressSelect').val()=='NEW'){
+			addAddress();
+		}
 	}
 	
 	$.ajax({
