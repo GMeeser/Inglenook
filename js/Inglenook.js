@@ -11,6 +11,7 @@ var cartTotal = 0;
 var orderID = localStorage.orderID;
 var requiresDeliveryFee = true;
 var deliveryFee = 0;
+var deliveryDate = '';
 
 var disableMenu = false;
 
@@ -40,6 +41,11 @@ function onDeviceReady() {
 	$('#menuLogoutBtn').attr('href','#logIn');
 
 	$('#menu_btn').show();
+	
+	//check if token is there and valid
+	if(typeof(localStorage.token)!='undefined'){
+		validateToken();
+	}
 	
 	console.log();
 	window.location = "#homeScreen"; 
@@ -261,7 +267,7 @@ function addProductItem(product){
 	//create product element
 	$("#productListContainer").append('<div class="productContainer">'+
 			'<div id="cartCount'+product.itemID+'" class="cartCount"><label id="cartCountLabel'+product.itemID+'">1</label></div>'+
-           	'<img id="img'+product.itemID+'" src="'+product.image+'"/>'+
+           	'<img id="img'+product.itemID+'" src="'+product.image+'?v='+(Date.now())+'"/>'+
                '<img id="imgloader'+product.itemID+'" class="loader" src="images/Loading-Icon-250.gif" />'+
                '<div class="textPadding">'+
                	'<h2>'+product.title+'</h2>'+
@@ -608,6 +614,7 @@ function addDropOffLocation(location){
 					responseData = JSON.parse(responseData);
 					if(responseData.requiresDeliveryFee==0){requiresDeliveryFee=false;}else{requiresDeliveryFee=true;}
 					deliveryFee = responseData.deliveryFee;
+					deliveryDate = responseData.deliveryDate;
 					confirmOrder(responseData.location);
 	    	},
 		error: function (responseData, textStatus, errorThrown) {connectionError();}
@@ -663,6 +670,7 @@ function confirmOrder(location){
 	cartTotal = total;
 	
 	$('#confirmOrderDropOffPoint').html('<label class="title">Drop Off Point: </label><label>'+location+'</label>');
+	$('#confirmOrderDeliveryDate').html('<label class="title">Delivery Date: </label><label>'+deliveryDate+'</label>');
 	
 	window.location = "#confirmOrder";
 }

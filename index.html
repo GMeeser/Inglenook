@@ -9,10 +9,8 @@
     <link rel="stylesheet"  href="css/font-awesome.min.css">
 	<script src="js/jquery.js"></script>
 	<script src="js/jquery.mobile.min.js"></script>
-	<script src="js/app.js"></script>
     <script src="js/Inglenook.js"></script>
 	<script src="phonegap.js"></script>
-	<script src="js/masonry.js"></script>
     
     <meta http-equiv="Content-Security-Policy" content="default-src * gap: file:; style-src 'self' 'unsafe-inline' gap: file: https://*.inglenookapp.co.za https://inglenookapp.co.za ; img-src 'self' gap: file: data: https://*.inglenookapp.co.za https://inglenookapp.co.za; script-src * 'unsafe-inline' 'unsafe-eval'">
 </head>
@@ -154,13 +152,13 @@
 	</div>
     <div id="addToCartContainer">
     	<div id="addToCart">
-				<div align="right" id="addToCartClose"><i style="color:black !important" class="fa fa-2x fa-times" onclick="$('#addToCartContainer').hide()"></i></div>
+				<div align="right" id="addToCartClose"><i style="color:black !important" class="fa fa-2x fa-times" onclick="$('#addToCartContainer').hide(); $('#menu_btn').show();"></i></div>
         		<img id="addToCartImg" src="" />
                 <div class="textpadding">
                 	<h2 id="addToCartTitle"></h2>
                     <label id="addToCartStock" class="stock"></label><br/>
                		<label id="addToCartPrice" class="price"></label><br/>
-                    <label><i class="fa fa-3x fa-plus-circle" onClick="addToCartIncrement();"></i><b id="addToCartAddNumber">1</b><i class="fa fa-3x fa-minus-circle"  onClick="addToCartDecrement();"></i></label><br/>
+                    <label><i class="fa fa-3x fa-minus-circle"  onClick="addToCartDecrement();"></i><b id="addToCartAddNumber">1</b><i class="fa fa-3x fa-plus-circle" onClick="addToCartIncrement();"></i></label><br/>
                     <img src="images/Add Button.jpg" class="add_btn" id="addToCartBtn" />
                 </div>
         </div>
@@ -212,6 +210,7 @@
                 <tr id="confirmOrderTitleTotalRow"><td></td><td></td><td></td><td>Total</td></tr>
             </table>
             <div id="confirmOrderDropOffPoint"></div>
+            <div id="confirmOrderDeliveryDate"></div>
             <div id="confirmOrderBtns">
                 <button id="confirmOrderCancelBtn" onClick="cancelOrder()">Cancel Order</button>
                 <button id="confirmOrderCheckoutBtn" onClick="checkout()">Checkout</button>
