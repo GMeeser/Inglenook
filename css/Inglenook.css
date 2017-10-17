@@ -312,6 +312,8 @@ h1, h2, h3, .title{
 #addToCart h2{
 	color: #7b2154;
 	font-size: 6vh;
+	line-height: 6vh;
+	margin: 10px;
 }
 
 #addToCart label{
