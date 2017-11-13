@@ -783,6 +783,9 @@ function payOrder(){
 	
 	$('#paymentMsg').html('Processing Payment');
 	
+	$('#paymentContinueBtn').removeAttr('onClick');
+	$('#paymentContinueBtn').attr('disable','disable');
+	
 	$.ajax({
 		url:HOST,
 		type:"POST",
@@ -804,7 +807,7 @@ function payOrder(){
 					$('#paymentCompleteContent').html('Your order has been successfully completed. You can check on order at any time using <b>Track Order</b> option in the menu bar.');	
 					$('#paymentCompleteBtns').html('<button onClick="window.location = '+"'#homeScreen'"+'">Done</button>');
 					window.location = '#paymentComplete';
-					//clearCart();
+					clearCart();
 					orderID = 0;
 				}else if(responseData.msg =='An error occured please try again.'){
 					$('#paymentCompleteTitle').html('Oh No');
@@ -819,6 +822,8 @@ function payOrder(){
 					$('#paymentCompleteBtns').append('<button onClick="window.location = '+"'#homeScreen'"+'">Cancel</button>');
 					window.location = '#paymentComplete';
 				}
+				$('#paymentContinueBtn').attr('onClick','payOrder()');
+				$('#paymentContinueBtn').removeAttr('disabled');
 	    	},
 		error: function (responseData, textStatus, errorThrown) {connectionError();}
 	});		
