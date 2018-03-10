@@ -1,5 +1,9 @@
 //Variables
-var token = localStorage.token;
+var token = 0;
+if(typeof(localStorage.token)!='undefined'){
+		token = localStorage.token;
+}
+
 var HOST = "https://inglenookapp.co.za/v2/api.php";
 //var HOST = "http://home.meeser.co.za:900/grant/Apps/Server%20Backends/Inglenook/api.php";
 //var HOST = "http://server1/grant/Apps/Server%20Backends/Inglenook/api.php";
@@ -17,18 +21,63 @@ var disableMenu = false;
 
 $.ajaxSetup({cache:false});
 
+function connectToServer(API_CALL, DATA_ARRAY, onSuccess, onError, onComplete, ASYNC){
+	//check if online
+	if(!isOnline()){return 0;}
+	var NOW = $.now();
+	//Connect to server
+	$.ajax({
+		url:HOST+"?"+NOW,
+		type:"POST",
+		cache:false,
+		async: ASYNC,
+		crossDomain: true,
+		data: $.extend({"f":API_CALL,"token":token}, DATA_ARRAY),
+		success: function(responseData, textStatus, jqXHR){
+			onSuccess(responseData, textStatus, jqXHR);
+			},
+		error: function(responseData, textStatus, errorThrown){
+				onError(responseData, textStatus, errorThrown);
+			},
+		complete: function(jqXHR, textStatus){
+				onComplete(jqXHR, textStatus);
+			},
+		timeout: 60000
+	});	
+}
+
+function isOnline(){
+	if(!navigator.onLine){
+		console.log("Device Offline");
+		$('#errorTitle').html("No Internet Connection");
+		$('#errorMsg').html("We have detected that you are not connected to the interent or are on an unstable connection. Please connect to WiFi or enable your mobile data to continue");
+		$('#errorBtn').html('Reconnect');
+		$('#errorBtn').attr('onClick','onDeviceReady()');
+		window.location = '#connectionError';
+		return false;
+		
+	}
+	
+	return true;
+}
+
 // Wait for PhoneGap to load
 document.addEventListener("deviceready", onDeviceReady, false);
 $(document).ready(onDeviceReady);
 
 // PhoneGap is ready
 function onDeviceReady() {
+	window.location = '#loading';
+	//check if online
+	if(!isOnline()){return 0;}
+	
 	$("body").on("swipeleft",function(){closeMenu();});
 	$("body").on("swiperight",function(){openMenu();});
 	$("#addToCartContainer").hide();
 	$("#menu").children().each(function(index, element) {
         $(element).click(function(){closeMenu();});
     });
+	
 	
 	//hide cart floating button
 	$('#cartButton').hide();
@@ -47,7 +96,7 @@ function onDeviceReady() {
 		validateToken();
 	}
 	
-	console.log();
+	//console.log();
 	window.location = "#homeScreen"; 
 	orderID=0;
 	
@@ -57,62 +106,166 @@ function onDeviceReady() {
 	$.mobile.loadingMessage = false;
 	$("#login_password").keydown(function (e){if (e.keyCode == 13){$("#login_btn").click();}});
 	$("#register_confirm_password").keydown(function (e){if (e.keyCode == 13){$("#register_btn").click();}});
+	
+	sendStoredErrorLog();
 }
 
 function updateDropOffLocations(){
-	$.ajax({
-		url:HOST,
-		type:"POST",
-		cache:false,
-		crossDomain: true,
-		data: {	"f":"getDropOffLocations"},
-		success: function(responseData, textStatus, jqXHR){
+	console.log("Download drop off location list");
+	connectToServer('getDropOffLocations',{},function(responseData, textStatus, jqXHR){
 					responseData = JSON.parse(responseData);
-					//Add drop off locations from server
-					$('#dropOffLocation').html('<optgroup label="Drop Off Locations">');
-					$.each(responseData.locations,function(index,value){
-						$('#dropOffLocation').append('<option value="'+value+'">'+value+'</option>');
-					});
-					$('#dropOffLocation').append('</optgroup>');
-					$('#dropOffLocation').append('<optgroup label="Other">');
-					$('#dropOffLocation').append('<option value="Delivery">Add Delivery Address');
-					$('#dropOffLocation').append('</optgroup>');
+					//update localStorage list of suburbs
+					localStorage.locations = JSON.stringify(responseData.locations);
 	    	},
-		error: function (responseData, textStatus, errorThrown) {connectionError();}
-	});	
+			
+			function (responseData, textStatus, errorThrown) {
+					connectionError(responseData, textStatus, errorThrown, 'getDropOffLocations', {})
+				},
+			function(){}, false);
+	
+	console.log("Update drop off location list");
+	//Add drop off locations from server
+	$('#dropOffLocation').html('<optgroup label="Drop Off Locations">');
+	$.each(JSON.parse(localStorage.locations),function(index,value){
+		$('#dropOffLocation').append('<option value="'+value+'">'+value+'</option>');
+	});
+	$('#dropOffLocation').append('</optgroup>');
+	$('#dropOffLocation').append('<optgroup label="Other">');
+	$('#dropOffLocation').append('<option value="Delivery">Add Delivery Address');
+	$('#dropOffLocation').append('</optgroup>');
 }
 
 function updateAddressSuburb(){
-	$.ajax({
-		url:HOST,
-		type:"POST",
-		cache:false,
-		crossDomain: true,
-		data: {	"f":"getSuburbs"},
-		success: function(responseData, textStatus, jqXHR){
+	console.log("Downloading suburb list");
+	connectToServer('getSuburbs',{},function(responseData, textStatus, jqXHR){
 					responseData = JSON.parse(responseData);
-					//Add drop off locations from server
-					$('#addressSuburb').html('');
-					$.each(responseData.suburbs,function(index,value){
-						$('#addressSuburb').append('<option value="'+value+'">'+value+'</option>');
-					});
+					//update localStorage list of suburbs
+					localStorage.suburbs = JSON.stringify(responseData.suburbs);
 	    	},
-		error: function (responseData, textStatus, errorThrown) {connectionError();}
-	});	
+			function (responseData, textStatus, errorThrown) {
+					connectionError(responseData, textStatus, errorThrown, 'getsuburbs', {})
+				},
+			function(){}, false);
+	
+	console.log("Update suburb list");
+	//Add drop off locations from server
+	$('#addressSuburb').html('');
+	$.each(JSON.parse(localStorage.suburbs),function(index,value){
+			$('#addressSuburb').append('<option value="'+value+'">'+value+'</option>');
+	});
+			
 }
 
-function connectionError(){
-	window.location = '#connectionError';	
+function connectionError(responseData, textStatus, errorThrown, API_CALL, DATA_ARRAY){
+	console.log("Error: "+API_CALL+' - '+errorThrown);
+	if(textStatus == 'error'){
+		if(errorThrown =='Bad Request'){
+			if(API_CALL!='validateToken'){
+				//display error
+				$('#errorTitle').html("Oh No...");
+				$('#errorMsg').html("We are unable to connect to the server right now due to "+errorThrown);
+				window.location = '#connectionError';
+				console.log("Error: "+errorThrown);
+			}else{
+				//leave function if error was invalid token
+				return 0;
+			}
+		}
+		
+		//display error
+		$('#errorTitle').html("Oh No...");
+		if(errorThrown!=''){
+			$('#errorMsg').html("We are unable to connect to the server right now due to "+errorThrown);
+		}else{
+			$('#errorMsg').html("We are unable to connect to the server right now, please try again later");
+		}
+		window.location = '#connectionError';
+		console.log("Error: "+errorThrown);
+		
+	}else if(textStatus == 'timeout'){
+		//display error
+		$('#errorTitle').html("Oh No...");
+		$('#errorMsg').html("Our connection to the server has timed out, this could be because you have a slow or unstable internet connection, or the server is very busy.");
+		window.location = '#connectionError';
+		console.log("Timeout Error");
+	}else{
+		//display error
+		$('#errorTitle').html("Oh No...");
+		$('#errorMsg').html("An unknown error has occurred. These can sometimes happen and we are working hard to fix them when they happen.<p/> Please let us know if the problem persists.");
+		window.location = '#connectionError';
+		console.log("General Error");
+	}
+	
+		
+	console.log("sending error report");
+	//report error back to server asynchronouly
+		$.ajax({
+			url:HOST,
+			type:"POST",
+			cache:false,
+			crossDomain: true,
+			data: {	"f":"errorReport","responseData":JSON.stringify(responseData),"testStatus":textStatus,"errorThrown":errorThrown,"API_CALL":API_CALL, "DATA_ARRAY":DATA_ARRAY},
+			success: function(){console.log("error report sent");},
+			error: function(){
+					console.log("error report not sent");
+					//create error report
+					var timestamp = new Date($.now()+7200000);
+					errorReport = {"responseData":responseData,"textStatus":textStatus,"errorThrown":errorThrown,"API_CALL":API_CALL, "DATA_ARRAY":DATA_ARRAY,"timestamp": timestamp};
+					
+					//add error report to errorlog
+					//load errorLog if present otherwise create one
+					var errorLog = [];
+					if(typeof(localStorage.errorLog)!='undefined'){ 
+						errorLog = JSON.parse(localStorage.errorLog);
+					}
+					
+					errorLog.push(errorReport);
+					localStorage.errorLog = JSON.stringify(errorLog);
+					console.log("error reporrt stored");
+				}
+		});
+}
+
+function removeFromErrorLog(errorReport){
+	console.log("Remove error from errorLog");
+	if(typeof(localStorage.errorLog)=='undefined'){console.log("No Stored Errors"); return 0;}
+	//load errorLog from localStorage
+	errorLog = JSON.parse(localStorage.errorLog);	
+	//check length of array
+	if(errorLog.length==0){console.log("No Stored Errors"); return 0;}
+	//get the index of the report to remove
+	var indexOfErrorReport = errorLog.indexOf(errorReport);
+	//remove report
+	errorLog.splice(indexOfErrorReport,1);
+	//save errorLog to localStorage
+	localStorage.errorLog = JSON.stringify(errorLog);
+	
+}
+
+function sendStoredErrorLog(){
+	console.log("Sending Stored Errors");
+	//check if there are stored errors
+	if(typeof(localStorage.errorLog)=='undefined'){console.log("No Stored Errors to Send"); return 0;}
+	//load errorLog from localStorage
+	errorLog = JSON.parse(localStorage.errorLog);	
+	//check length of array
+	if(errorLog.length==0){console.log("No Stored Errors to Send"); return 0;}
+	
+	//loop through error reports and send them
+	for(var i=0; i<errorLog.length;i++){
+		connectToServer('errorReport',errorLog[i],function(){
+				//remove succesfully sent errors
+				removeFromErrorLog(errorLog[i]);
+			},function(){},function(){},true);
+	}
+	
+	console.log("Stored Errors Sent");
+	console.log(errorLog);
+	
 }
 
 function validateToken(){
-	$.ajax({
-		url:HOST,
-		type:"POST",
-		cache:false,
-		crossDomain: true,
-		data: {"f":"validateToken","token": token},
-		success: function(responseData, textStatus, jqXHR) {
+	connectToServer('validateToken',{'token':token},function(responseData, textStatus, jqXHR) {
 				console.log("Token Valid");
 				$('#menuSettings').show();
 				$('#menuTrackOrder').show();
@@ -120,13 +273,15 @@ function validateToken(){
 				$('#menuLogoutBtn').attr('onClick','logout()');
 				$('#menuLogoutBtn').attr('href','#');
 			},
-		error: function (responseData, textStatus, errorThrown) {
+			function (responseData, textStatus, errorThrown) {
+				connectionError(responseData, textStatus, errorThrown, 'validateToken', {"token":token});
 				console.log("Token Invalid");
 				//$('#menu_btn').hide();
 				token=0;
 				window.location = "#logIn";
-			}
-	});
+			},
+			function(){},true);
+			
 }
 
 function isLogedIn(){
@@ -153,14 +308,8 @@ function closeMenu(){
 
 function login(){
 	$("#login_msg").html("Processing...");
-	
-	$.ajax({
-		url:HOST,
-		type:"POST",
-		cache:false,
-		crossDomain: true,
-		data: {"f":"login","email": $("#login_email").val(),"password": $("#login_password").val()},
-		success: function(responseData, textStatus, jqXHR) {
+	console.log("Login request sent");
+	connectToServer('login',{"email": $("#login_email").val(),"password": $("#login_password").val()},function(responseData, textStatus, jqXHR) {
 			responseData = JSON.parse(responseData);
 			token = responseData.token;
 			if(token!=0){
@@ -177,12 +326,18 @@ function login(){
 				$('#menuLogoutBtn').attr('onClick','logout()');
 				$('#menuLogoutBtn').attr('href','#');
 				
+				console.log("Login Succesful");
+				
 			}else{
 				$("#login_msg").html(responseData.error);
+				console.log("Login error: "+responseData.error);
 			}
-	    	},
-		error: function (responseData, textStatus, errorThrown) {$("#login_msg").html("Connection Error, Please Try Again Later.");}
-	});
+	    },
+		function (responseData, textStatus, errorThrown) {
+			console.log("Login Request Failed");
+			$("#login_msg").html("Connection Error, Please Try Again Later.");
+		},
+		function(){},true);
 }
 
 function logout(){
@@ -199,75 +354,84 @@ function isEmail(email) {
 }
 
 function register(){
+	
+	$("#register_msg").html("Processing...");
+	
 	if($("#register_password").val()!=$("#register_confirm_password").val()){
 		$("#register_msg").html("Passwords Do Not Match."); 
+		console.log("Passwords do not match");
 		return "error";
 	}
 
 	if(!isEmail($("#register_email").val())){
 		$("#register_msg").html("Please Enter A Valid Email Address."); 
+		console.log("Invalid email");
 		return "error";
 	}
 	if($("#register_name").val().length < 5){
 		$("#register_msg").html("Name to short.");
+		console.log("Name too short");
 		return "error";
 	}
 	if($("#register_contactNumber").val().length < 10){
 		$("#register_msg").html("Please input a valid contact number.");
+		console.log("Invalid contact number");
 		return "error";
 	}
-	$.ajax({
-		url:HOST,
-		type:"POST",
-		cache:false,
-		crossDomain: true,
-		data: {	"f":"register",
-			"email": $("#register_email").val(),
-			"password": $("#register_password").val(),
-			"contactNumber": $("#register_contactNumber").val(),
-			"name": $("#register_name").val()},
-		success: function(responseData, textStatus, jqXHR) {
-			responseData = JSON.parse(responseData);
-			token = responseData.token;
-			if(token!=0){
-				localStorage.token = token;
-				window.location = "#homeScreen";
+	
+	connectToServer('register',{"email": $("#register_email").val(),
+								"password": $("#register_password").val(),
+								"contactNumber": $("#register_contactNumber").val(),
+								"name": $("#register_name").val()},
+					function(responseData, textStatus, jqXHR) {
+						responseData = JSON.parse(responseData);
+						token = responseData.token;
+						if(token!=0){
+							localStorage.token = token;
+							window.location = "#homeScreen";
 				
-				$('#menuSettings').show();
-				$('#menuTrackOrder').show();
-				$('#menuLogoutBtn').html('<li style="border-bottom-width:2px;"><i class="fa fa-sign-out fa-fw"></i> Log Out</li>');
-				$('#menuLogoutBtn').attr('onClick','logout()');
-				$('#menuLogoutBtn').attr('href','#');
+							$('#menuSettings').show();
+							$('#menuTrackOrder').show();
+							$('#menuLogoutBtn').html('<li style="border-bottom-width:2px;"><i class="fa fa-sign-out fa-fw"></i> Log Out</li>');
+							$('#menuLogoutBtn').attr('onClick','logout()');
+							$('#menuLogoutBtn').attr('href','#');
+							
+							$("#register_msg").html("");
+							
+							console.log("Registration Successful");
 				
-			}else{
-				$("#register_msg").html(responseData.error);
-			}
-	    	},
-		error: function (responseData, textStatus, errorThrown) {$("#register_msg").html("Connection Error, Please Try Again Later.");}
-	});
+						}else{
+							$("#register_msg").html(responseData.error);
+							console.log("Registration Error : "+responseData.error);
+						}
+	    			},
+					function (responseData, textStatus, errorThrown) {
+						$("#register_msg").html("Connection Error, Please Try Again Later.");
+						console.log("Registration Request Error : "+errorThrown);
+					},
+					function(){},true);
 }
 
 function forgotPassword(){
-		$.ajax({
-		url:HOST,
-		type:"POST",
-		cache:false,
-		crossDomain: true,
-		data: {	"f":"forgotPassword",
-			"email": $("#forgotPassword_email").val()},
-		success: function(responseData, textStatus, jqXHR) {
+	console.log("Sending forgot password request");
+	$("#forgotPassword_msg").html("Processing...");
+	connectToServer('forgotPassword',{'email':$('#forgotPassword_email').val()},
+		function(responseData, textStatus, jqXHR) {
 			responseData = JSON.parse(responseData);			
 			$("#forgotPassword_msg").html(responseData.msg);
-	    	},
-		error: function (responseData, textStatus, errorThrown) {$("#forgotPassword_msg").html("Connection Error, Please Try Again Later.");}
-	});
+			console.log("Forgot Password returned: "+responseData.msg);
+	    },
+		function (responseData, textStatus, errorThrown) {
+			$("#forgotPassword_msg").html("Connection Error, Please Try Again Later.");
+			console.log("Forgot Paswword Request Error: "+errorThrown);
+		}, function(){}, true);
 }
 
 function addProductItem(product){
 	//create product element
 	$("#productListContainer").append('<div class="productContainer">'+
 			'<div id="cartCount'+product.itemID+'" class="cartCount"><label id="cartCountLabel'+product.itemID+'">1</label></div>'+
-           	'<img id="img'+product.itemID+'" src="'+product.image+'?v='+(Date.now())+'"/>'+
+           	'<img id="img'+product.itemID+'" src="'+product.image+'"/>'+
                '<img id="imgloader'+product.itemID+'" class="loader" src="images/Loading-Icon-250.gif" />'+
                '<div class="textPadding">'+
                	'<h2>'+product.title+'</h2>'+
@@ -292,100 +456,110 @@ function addProductItem(product){
 function gotoProfileSettings(){
 	$('#menu_btn').show(250);
 	disableMenu=false;
-	$("#settings_msg").html("Loading");
-	$.ajax({
-		url:HOST,
-		type:"POST",
-		cache:false,
-		crossDomain: true,
-		data: {	"f":"getProfile",
-			"token": token},
-		success: function(responseData, textStatus, jqXHR){
+	
+	console.log("Getting Profile Settings");
+	
+	window.location = '#profileSettings';
+	$("#settings_msg").html("Loading...");
+	connectToServer('getProfile',{},
+		function(responseData, textStatus, jqXHR){
 				responseData = JSON.parse(responseData);
 				$("#settings_name").val(responseData.name);
 				$("#settings_contactNumber").val(responseData.contactNumber);
 				$("#settings_email").val(responseData.email);
 				$("#settings_msg").html(' ');
+				console.log("Getting Profile Settings Succesful");
 	    	},
-		error: function (responseData, textStatus, errorThrown) {$("#settings_msg").html("Connection Error, Please Try Again Later.");}
-	});	
-	window.location = '#profileSettings';	
+		function (responseData, textStatus, errorThrown) {
+			console.log("Getting Profile Settings Error");
+			$("#settings_msg").html("Connection Error, Please Try Again Later.");
+			connectionError(responseData,textStatus,errorThrown,'getProfile','{}');
+			},
+		function(){},true);
+	
+		
 }
 
 function updateProfile(){
 	if($("#settings_name").val().length < 5){
 		$("#settings_msg").html("Name to short.");
+		console.log("Name to short");
 		return false;
 	}
 	if($("#settings_contactNumber").val().length < 10){
 		$("#settings_msg").html("Please input a valid contact number.");
+		console.log("Invalid contact number");
 		return false;
 	}
 	if(!isEmail($("#settings_email").val())){
 		$("#settings_msg").html("Please input a valid email address.");
+		console.log("Invalid email");
 		return false;
 	}
-	$.ajax({
-		url:HOST,
-		type:"POST",
-		cache:false,
-		crossDomain: true,
-		data: {	"f":"updateProfile",
-			"name": $("#settings_name").val(),
-			"email": $("#settings_email").val(),
-			"contactNumber": $("#settings_contactNumber").val(),
-			"token": token},
-		success: function(responseData, textStatus, jqXHR){
-				$("#settings_msg").html("Profile Succefully Updated.");
-	    	},
-		error: function (responseData, textStatus, errorThrown) {$("#settings_msg").html("Connection Error, Please Try Again Later.");}
-	});	
+	
+	console.log("Sending profile update");
+	$("#settings_msg").html("Processing...");
+	
+	connectToServer('updateProfile',{"name": $("#settings_name").val(),"email": $("#settings_email").val(),"contactNumber": $("#settings_contactNumber").val()},
+		function(responseData, textStatus, jqXHR){
+			$("#settings_msg").html("Profile Succefully Updated.");
+			console.log("Profile Succedfully Upddated");
+	    },
+		function (responseData, textStatus, errorThrown) {
+			$("#settings_msg").html("Connection Error, Please Try Again Later.");
+			console.log("Profile Update Failed: "+errorThrown);
+			connectionError(responseData,textStatus,errorThrown,'updateProfile',{"name": $("#settings_name").val(),"email": $("#settings_email").val(),"contactNumber": $("#settings_contactNumber").val()});
+		},
+		function(){},true);
 }
 
 function changePassword(){
 	if($("#changePassword_new_password").val().length<8){
 		$("#changePassword_msg").html("Your password must be 8 characters or longer.");
+		console.log("Password not long enough");
 		return false;
 	}
 	
 	if($("#changePassword_new_password").val() != $("#changePassword_confirm_new_password").val()){
 		$("#changePassword_msg").html("Confirmation password does not match new password.");
+		console.log("New passwords do not match");
 		return false;
 	}
 	
-	$.ajax({
-		url:HOST,
-		type:"POST",
-		cache:false,
-		crossDomain: true,
-		data: {	"f":"changePassword",
-			"oldPassword": $("#changePassword_old_password").val(),
-			"newPassword": $("#changePassword_new_password").val(),
-			"token": token},
-		success: function(responseData, textStatus, jqXHR){
-				responseData = JSON.parse(responseData);
-				$("#changePassword_msg").html(responseData.msg);
-	    	},
-		error: function (responseData, textStatus, errorThrown) {$("#changePassword_msg").html("Connection Error, Please Try Again Later.");}
-	});
+	console.log("Sending password update request");
+	$("#changePassword_msg").html("Processing...");
+	connectToServer('changePassword',{"oldPassword": $("#changePassword_old_password").val(),"newPassword": $("#changePassword_new_password").val()},
+		function(responseData, textStatus, jqXHR){
+			responseData = JSON.parse(responseData);
+			$("#changePassword_msg").html(responseData.msg);
+			console.log("Password update request successful");
+	    },
+		function (responseData, textStatus, errorThrown) {
+			$("#changePassword_msg").html("Connection Error, Please Try Again Later.");
+			console.log("Password update request error: "+errorThrown);
+			connectionError(responseData,textStatus,errorThrown,'changePassword',{"oldPassword": $("#changePassword_old_password").val(),"newPassword": $("#changePassword_new_password").val()});
+		},
+		function(){},true);
+		
 }
 
 function loadProducts(filter){
-	$.ajax({
-		url:HOST,
-		type:"POST",
-		cache:false,
-		crossDomain: true,
-		data: {	"f":"products",
-			"filter": filter},
-		success: function(responseData, textStatus, jqXHR) {
+	$("#productListContainer").html('<div id="loadingProducts">Loading...</div>');
+	console.log('Loading Products for '+filter);
+	connectToServer('products',{'filter':filter},
+		function(responseData, textStatus, jqXHR) {
 			responseData = JSON.parse(responseData);
+			clearProducts();
 			$.each(responseData, function(key, data){
 				addProductItem(data);
 			});
-	    	},
-		error: function (responseData, textStatus, errorThrown) {$("#register_msg").html("Connection Error, Please Try Again Later.");}
-	});
+			console.log('Loading Products for '+filter+' successful');
+		},
+		function (responseData, textStatus, errorThrown) {
+			console.log('Loading Products for '+filter+' failed');
+			connectionError(responseData, textStatus, errorThrown,'products',{'filter':filter});
+		},
+		function(){},true);
 }
 
 function clearProducts(){
@@ -399,11 +573,11 @@ function products(filter){
 	if(filter=='artisanal'){title = 'Artisanal Goods';}
 	//load content
 	clearProducts();
-	loadProducts(filter);
-	//update product page title
-	$('#products_title').html(title);
 	//switch to product page
 	window.location = '#products';
+	//update product page title
+	$('#products_title').html(title);
+	loadProducts(filter);
 	//show floating cart button
 	if(cart.length>0){
 		$('#cartButton').show(250);
@@ -421,14 +595,10 @@ function getProductItem(itemID){
 	addToCartMax = 0;
 	$("#addToCartAddNumber").html(0);
 	
-	$.ajax({
-		url:HOST,
-		type:"POST",
-		cache:false,
-		crossDomain: true,
-		data: {	"f":"product",
-			"productID": itemID},
-		success: function(responseData, textStatus, jqXHR) {
+	console.log("Sending product information request");
+	
+	connectToServer('product',{'productID': itemID},
+		function(responseData, textStatus, jqXHR) {
 			responseData = JSON.parse(responseData);
 			$.each(responseData, function(key, data){
 				$("#addToCartImg").attr('src',responseData.image);
@@ -438,11 +608,14 @@ function getProductItem(itemID){
 				$("#addToCartBtn").attr('onclick','addToCart('+responseData.itemID+','+responseData.price+','+responseData.stock+')');
 				addToCartMax = responseData.stock;
 				$("#addToCartAddNumber").html(parseInt($("#cartCountLabel"+responseData.itemID).html()));
+				console.log("Product information request successful");
 			});
-	
-    	},
-		error: function (responseData, textStatus, errorThrown) {}
-	});
+		},
+		function (responseData, textStatus, errorThrown) {
+			console.log("Product information request failed: "+errorThrown);
+			connectionError(responseData,textStatus,errorThrown,'product',{'productID':itemID});	
+		},
+		function(){},true);
 	
 	//show addItem, hide buttons
 	$("#addToCartContainer").show(250);
@@ -573,21 +746,19 @@ function clearCart(){
 }
 
 function createOrder(){
-	$.ajax({
-		url:HOST,
-		type:"POST",
-		cache:false,
-		crossDomain: true,
-		data: {	"f":"createOrder",
-				"token": token,
-				"products":cart},
-		success: function(responseData, textStatus, jqXHR){
+	console.log("Sending order to server");
+	connectToServer('createOrder',{'products':cart},
+		function(responseData, textStatus, jqXHR){
 				responseData = JSON.parse(responseData);
 				orderID = responseData.orderID;
 				localStorage.orderID = orderID;
+				console.log("Order successfully created - order number "+orderID);
 			},
-		error: function (responseData, textStatus, errorThrown) {connectionError();}
-	});	
+		function (responseData, textStatus, errorThrown) {
+			console.log("Order creation failed: "+errorThrown);
+			connectionError(responseData,textStatus,errorThrown,'createOrder',{'products':cart});
+			},
+		function(){},true);
 }
 
 function addDropOffLocation(location){
@@ -601,44 +772,42 @@ function addDropOffLocation(location){
 		}
 	}
 	
-	$.ajax({
-		url:HOST,
-		type:"POST",
-		cache:false,
-		crossDomain: true,
-		data: {	"f":"addDropOffLocation",
-				"token": token,
-				"location":location,
-				"orderID": orderID},
-		success: function(responseData, textStatus, jqXHR){
-					responseData = JSON.parse(responseData);
-					if(responseData.requiresDeliveryFee==0){requiresDeliveryFee=false;}else{requiresDeliveryFee=true;}
-					deliveryFee = responseData.deliveryFee;
-					deliveryDate = responseData.deliveryDate;
-					confirmOrder(responseData.location);
+	console.log("Add drop off location to order");
+	connectToServer('addDropOffLocation',{'location':location,'orderID':orderID},
+		function(responseData, textStatus, jqXHR){
+				responseData = JSON.parse(responseData);
+				if(responseData.requiresDeliveryFee==0){requiresDeliveryFee=false;}else{requiresDeliveryFee=true;}
+				deliveryFee = responseData.deliveryFee;
+				deliveryDate = responseData.deliveryDate;
+				console.log("Drop off location add sucessfully - Delivery Fee R"+deliveryFee);
+				confirmOrder(responseData.location);
 	    	},
-		error: function (responseData, textStatus, errorThrown) {connectionError();}
-	});	
+		function (responseData, textStatus, errorThrown) {
+			console.log("Failed to add drop off location to order");
+			connectionError(responseData,textStatus,errorThrown,'addDropffLocation',{'location':location,'orderID':orderID});
+			},
+		function(){},true);
 }
 
 function cancelOrder(){
-		window.location = "#myBag";	
-		$.ajax({
-		url:HOST,
-		type:"POST",
-		cache:false,
-		crossDomain: true,
-		data: {	"f":"cancelOrder",
-				"token": token,
-				"orderID":orderID},
-		success: function(responseData, textStatus, jqXHR){
+	window.location = "#myBag";	
+	console.log("Cancel Order "+orderID);
+	connectToServer('cancelOrder',{'orderID':orderID},
+		function(responseData, textStatus, jqXHR){
 				responseData = JSON.parse(responseData);
+				console.log("order "+orderID+" succefully cancelled");
 				orderID = 0
 				localStorage.orderID=0;
 				localStorage.removeItem('orderID');
 	    	},
-		error: function (responseData, textStatus, errorThrown) {connectionError();}
-	});	
+		function (responseData, textStatus, errorThrown) {
+			console.log("order "+orderID+" failed to cancel");
+			orderID = 0
+			localStorage.orderID=0;
+			localStorage.removeItem('orderID');
+			connectionError(responseData,textStatus,errorThrown,'cancelOrder',{'orderID':orderID});
+			},
+		function(){},true);
 }
 
 function proceed(){
@@ -676,40 +845,40 @@ function confirmOrder(location){
 }
 
 function checkout(){
-		//payOrder('NEW');
-		
-		$.ajax({
-		url:HOST,
-		type:"POST",
-		cache:false,
-		crossDomain: true,
-		data: {	"f":"getCards",
-				"token": token
-		},
-		success: function(responseData, textStatus, jqXHR){
-					responseData = JSON.parse(responseData);
-					$('#cards').html('');
-					$.each(responseData, function(index, value){
-							console.log(value[0]);
-							var imagePath;
-							//select correct image
-							if(value[0].cardType=='Visa'){
-								imagePath = 'visalg.png';
-							}else if(value[0].cardType=='MasterCard'){
-								imagePath='MCard.jpg';
-							}else{
-								imagePath = 'american-express-logo4.jpg';
-							}
-							
-							$('#cards').append('<label><input type="radio" value="'+value[0].cardVaultID+'" name="card"><div class="card"><img src="images/'+imagePath+'" /><b>'+value[0].cardNumber+'</b></div></label>');
-							
-						});
-					$('#cards').append('<label><input type="radio" value="NEW" name="card"><div class="card">Add New Card.</div></label>');
-					
-	    		},
-		error: function (responseData, textStatus, errorThrown) {connectionError();}
-	});		
+	//payOrder('NEW');
+	$('#cards').html('Loading...');
 	window.location = '#selectCard';
+		
+	console.log("Request card list");
+	connectToServer('getCards',{},
+		function(responseData, textStatus, jqXHR){
+			responseData = JSON.parse(responseData);
+			$('#cards').html('');
+			console.log("Get card list successful");
+			$.each(responseData, function(index, value){
+					//console.log(value[0]); Display all card data
+					var imagePath;
+					//select correct image
+					if(value[0].cardType=='Visa'){
+						imagePath = 'visalg.png';
+					}else if(value[0].cardType=='MasterCard'){
+						imagePath='MCard.jpg';
+					}else{
+						imagePath = 'american-express-logo4.jpg';
+					}
+					// Add card to list
+					$('#cards').append('<label><input type="radio" value="'+value[0].cardVaultID+'" name="card"><div class="card"><img src="images/'+imagePath+'" /><b>'+value[0].cardNumber+'</b></div></label>');
+							
+				});
+			$('#cards').append('<label><input type="radio" value="NEW" name="card"><div class="card">Add New Card.</div></label>');
+					
+		},
+		function (responseData, textStatus, errorThrown){
+			console.log("Get card list error: "+errorThrown);
+			connectionError(responseData, textStatus, errorThrown, 'getCards',{});
+		},
+		function(){},true);
+	
 
 }
 
@@ -726,23 +895,20 @@ function goToGateway(cardVault){
 	}
 	$('#paymentMsg').html(' ');
 	
-	$.ajax({
-		url:HOST,
-		async: false,
-		type:"POST",
-		cache:false,
-		crossDomain: true,
-		data: {	"f":"getCard",
-				"token": token,
-				"vaultID":cardVault},
-		success: function(responseData, textStatus, jqXHR){
+	console.log("Request card information");
+	connectToServer('getCard',{'vaultID':cardVault},
+		function(responseData, textStatus, jqXHR){
 				responseData = JSON.parse(responseData);
 				$('#paymentCardNumber').val(responseData.cardNumber);
 				$('#paymentMonth').val(responseData.cardExpiryDate.substring(0,2));
 				$('#paymentYear').val(responseData.cardExpiryDate.substring(2));
+				console.log("Card information request succesful");
 	    	},
-		error: function (responseData, textStatus, errorThrown) {connectionError();}
-	});	
+		function (responseData, textStatus, errorThrown){
+			console.log("Card information request failed");
+			connectionError(responseData, textStatus, errorThrown, 'getCard', {'vaultID':cardVault});
+			},
+		function(){}, true);
 	
 	window.location = '#paymentPage';
 }
@@ -786,21 +952,8 @@ function payOrder(){
 	$('#paymentContinueBtn').removeAttr('onClick');
 	$('#paymentContinueBtn').attr('disable','disable');
 	
-	$.ajax({
-		url:HOST,
-		type:"POST",
-		cache:false,
-		crossDomain: true,
-		data: {	"f":"payForOrder",
-				"token": token,
-				"orderID":orderID,
-				"cardVaultID":cardVaultID,
-				"cardNumber": $('#paymentCardNumber').val(),
-				"cardExpiryDate": $('#paymentMonth').val()+$('#paymentYear').val(),
-				"cvv": $('#paymentCVV').val(),
-				"name": $('#paymentFirstName').val()+' '+$('#paymentLastName').val()
-		},
-		success: function(responseData, textStatus, jqXHR){
+	connectToServer('payForOrder',{"orderID":orderID,"cardVaultID":cardVaultID,"cardNumber": $('#paymentCardNumber').val(),"cardExpiryDate": $('#paymentMonth').val()+$('#paymentYear').val(),"cvv": $('#paymentCVV').val(),"name": $('#paymentFirstName').val()+' '+$('#paymentLastName').val()},
+		function(responseData, textStatus, jqXHR){
 				responseData = JSON.parse(responseData);
 				if(responseData.msg=='Success'){
 					$('#paymentCompleteTitle').html('Payment Complete');
@@ -825,72 +978,63 @@ function payOrder(){
 				$('#paymentContinueBtn').attr('onClick','payOrder()');
 				$('#paymentContinueBtn').removeAttr('disabled');
 	    	},
-		error: function (responseData, textStatus, errorThrown) {connectionError();}
-	});		
+		function (responseData, textStatus, errorThrown) {
+			connectionError(responseData,textStatus,errorThrown,'payForOrder',{"orderID":orderID,"cardVaultID":cardVaultID,"cardNumber": $('#paymentCardNumber').val(),"cardExpiryDate": $('#paymentMonth').val()+$('#paymentYear').val(),"cvv": $('#paymentCVV').val(),"name": $('#paymentFirstName').val()+' '+$('#paymentLastName').val()});
+			},
+		function(){},true);
 }
 
 function checkOrderStatus(){
 	if(orderID==0){return 0}
 	var output = 0;
-	$.ajax({
-		url:HOST,
-		async: false,
-		type:"POST",
-		cache:false,
-		crossDomain: true,
-		data: {	"f":"checkOrderStatus",
-				"token": token,
-				"orderID":orderID},
-		success: function(responseData, textStatus, jqXHR){
+	console.log("Checking status of order "+orderID);
+	connectToServer('checkOrderStatus',{'orderID':orderID},
+		function(responseData, textStatus, jqXHR){
 				responseData = JSON.parse(responseData);
 				output = responseData.status;
 				console.log(responseData);
-	    	},
-		error: function (responseData, textStatus, errorThrown) {connectionError();}
-	});	
+		},
+		function (responseData, textStatus, errorThrown){
+			console.log('Checking order status failed');
+			connectionError(responseData, textStatus, errorThrown, 'checkOrderStatus',{'orderID':orderID});
+		},
+		function(){},false);
 	
 	return output;
 }
 
 function updateStock(){
-	$.ajax({
-			url:HOST,
-			async: false,
-			type:"POST",
-		cache:false,
-			crossDomain: true,
-			data: {	"f":"updateStock",
-					"token": token,
-					"orderID":orderID},
-			success: function(responseData, textStatus, jqXHR){
-					responseData = JSON.parse(responseData);
-				},
-			error: function (responseData, textStatus, errorThrown) {connectionError();}
-		});
+	console.log("Sending stock update request");
+	connectToServer('updateStock',{'orderID':orderID},
+		function(responseData, textStatus, jqXHR){
+			responseData = JSON.parse(responseData);
+			console.log('Stock update request sent');
+		},
+		function (responseData, textStatus, errorThrown){
+			console.log('Stock update request failed');
+			connectionError(responseData, textStatus, errorThrown, 'updateStock',{'orderID':orderID});
+		},
+		function(){}, false);
 }
 
 function addTrackingInfo(orderID){
 	//get order info
 	var status = 0;
 	var dropoff = '';
-	$.ajax({
-			url:HOST,
-			async: false,
-			type:"POST",
-		cache:false,
-			crossDomain: true,
-			data: {	"f":"getOrderInfo",
-					"token": token,
-					"orderID":orderID},
-			success: function(responseData, textStatus, jqXHR){
-					responseData = JSON.parse(responseData);
-					orderID = responseData.orderID;
-					status = responseData.status;
-					dropoff = responseData.dropoff;
-					
-				},
-			error: function (responseData, textStatus, errorThrown) {connectionError();}
-		});	
+	console.log('Requestion tracking information for order '+orderID);	
+	connectToServer('getOrderInfo',{'orderID':orderID},
+		function(responseData, textStatus, jqXHR){
+			responseData = JSON.parse(responseData);
+			orderID = responseData.orderID;
+			status = responseData.status;
+			dropoff = responseData.dropoff;
+			console.log('Tracking information for order '+orderID+' successful');
+		},
+		function (responseData, textStatus, errorThrown){
+			console.log('Tracking information for order '+orderID+' failed');
+			connectionError(responseData, textStatus, errorThrown,'getOrderInfo',{'orderID':orderID});
+		},
+		function(){},false);
 		
 	//Expand dropoff details
 	
@@ -907,6 +1051,7 @@ function addTrackingInfo(orderID){
             '<label class="trackOrderDropOffPoint">'+dropoff+'</label>'+
         '</div>'+
         '<div style="background:#f9f0f3"><img src="images/Tracking_0'+status+'.jpg" class="trackOrderImg" /></div>'+
+		'<div align="center"><button style="margin-bottom: 10px;" onClick="viewOrder('+orderID+')">View Order</button></div>'+
 		'</div>'
 		);
 	
@@ -918,24 +1063,23 @@ function updateTracking(){
 	
 	var orderList = null;
 	//clear tracking page
-	$('#trackingContainer').html('');
-	//get list of all active orders
-	$.ajax({
-			url:HOST,
-			async: false,
-			type:"POST",
-		cache:false,
-			crossDomain: true,
-			data: {	"f":"getTrackingOrders",
-					"token": token},
-			success: function(responseData, textStatus, jqXHR){
-					responseData = JSON.parse(responseData);
-					orderList = responseData.orderList;
-					
-				},
-			error: function (responseData, textStatus, errorThrown) {connectionError();}
-		});	
+	$('#trackingContainer').html('<h2>Loading...</h2>');
+	//get list of all active orders	
+	console.log('Request list of orders for tracking');
+	connectToServer('getTrackingOrders',{},
+		function(responseData, textStatus, jqXHR){
+			responseData = JSON.parse(responseData);
+			orderList = responseData.orderList;	
+			console.log('List of orders for tracking succesfully recieved');
+		},
+		function(responseData, textStatus, errorThrown){
+			console.log('List of orders for tracking succesfully recieved');
+			connectionError(responseData, textStatus, errorThrown,'getTrackingOrders',{});
+		},
+		function(){},false);
+		
 	//add order list to tracking page
+	if(orderList.length>0){$('#trackingContainer').html('');}else{$('#trackingContainer').html('<h2>No Orders</h2>');}
 	$.each(orderList,function(index, value){addTrackingInfo(value);});
 	//go to order tracking page
 	window.location = '#trackOrder';
@@ -998,9 +1142,10 @@ function newsletter(){
 			success: function(responseData, textStatus, jqXHR){
 					$('#newsLetterContainer').html(responseData);
 				},
-			error: function (responseData, textStatus, errorThrown) {connectionError();}
-		});	
-		
+			error: function (responseData, textStatus, errorThrown) {
+				connectionError(responseData, textStatus, errorThrown,'newsletter.php',{});
+				}
+	});	
 }
 
 function ourStory(){
@@ -1015,7 +1160,9 @@ function ourStory(){
 			success: function(responseData, textStatus, jqXHR){
 					$('#storyContainer').html(responseData);
 				},
-			error: function (responseData, textStatus, errorThrown) {connectionError();}
+			error: function (responseData, textStatus, errorThrown){
+				connectionError(responseData, textStatus, errorThrown,'story.php',{});
+				}
 		});	
 		
 }
@@ -1030,16 +1177,12 @@ function checkForDelivery(){
 	}
 }
 
-function goToSelectAddress(){
-	$.ajax({
-		url:HOST,
-		type:"POST",
-		cache:false,
-		crossDomain: true,
-		data: {	"f":"getAddressList",
-				"token":token},
-		success: function(responseData, textStatus, jqXHR){
+function goToSelectAddress(){	
+	console.log("Get address list");
+	connectToServer('getAddressList',{},
+		function(responseData, textStatus, jqXHR){
 					responseData = JSON.parse(responseData);
+					console.log("Get address list succesful");
 					//get addresses from server
 					$('#addressSelect').html('<option value="NEW" selected >Add New Address</option>');
 					$.each(responseData.addresses,function(index,value){
@@ -1047,8 +1190,11 @@ function goToSelectAddress(){
 					});
 					window.location = "#selectAddress";
 	    	},
-		error: function (responseData, textStatus, errorThrown) {connectionError();}
-	});		
+		function(responseData, textStatus, errorThrown){
+			console.log("Get address list failed");
+			connectionError(responseData, textStatus, errorThrown, 'getAddressList',{});
+			},
+		function(){},true);
 }
 
 function goToAddress(){
@@ -1063,47 +1209,38 @@ function goToAddress(){
 		return false
 	}else{
 		var addressID = $('#addressSelect').val();
-	}
-	$.ajax({
-		url:HOST,
-		type:"POST",
-		cache:false,
-		crossDomain: true,
-		data: {	"f":"getAddress",
-				"token": token,
-				"addressID":addressID},
-		success: function(responseData, textStatus, jqXHR){
-					responseData = JSON.parse(responseData);
-					//load address to form
-					$('#addressLine1').val(responseData.addressLine1);
-					$('#addressLine2').val(responseData.addressLine2);
-					$('#addressSuburb').val(responseData.suburb);
-					$('#addressCity').val(responseData.city);
-					$('#addressProvince').val(responseData.province);
-					$('#addressCountry').val(responseData.country);
-					$('#addressPostalCode').val(responseData.postalCode);
-					window.location = "#address";
+	}	
+	console.log('Get address request');
+	connectToServer('getAddress',{'addressID':addressID},
+		function(responseData, textStatus, jqXHR){
+				responseData = JSON.parse(responseData);
+				console.log('Get address successful');
+				//load address to form
+				$('#addressLine1').val(responseData.addressLine1);
+				$('#addressLine2').val(responseData.addressLine2);
+				$('#addressSuburb').val(responseData.suburb);
+				$('#addressCity').val(responseData.city);
+				$('#addressProvince').val(responseData.province);
+				$('#addressCountry').val(responseData.country);
+				$('#addressPostalCode').val(responseData.postalCode);
+				window.location = "#address";
 	    	},
-		error: function (responseData, textStatus, errorThrown) {connectionError();}
-	});		
+		function(responseData, textStatus, errorThrown){
+			console.log('Get address failed');
+			connectionError(responseData, textStatus, errorThrown, 'getAddress',{'addressID':addressID});
+			},
+		function(){},true);
 }
 
 function addAddress(){
-	$.ajax({
-		url:HOST,
-		type:"POST",
-		cache:false,
-		crossDomain: true,
-		data: {	"f":"addAddress",
-				"token": token,
-				"addressLine1":$('#addressLine1').val(),
-				"addressLine2":$('#addressLine2').val(),
-				"suburb":$('#addressSuburb').val(),
-				"city":$('#addressCity').val(),
-				"province":$('#addressProvince').val(),
-				"country":$('#addressCountry').val(),
-				"postalCode":$('#addressPostalCode').val(),},
-		success: function(responseData, textStatus, jqXHR){},
-		error: function (responseData, textStatus, errorThrown) {connectionError();}
-	});		
+	console.log('Add address');
+	connectToServer('addAddress',{"addressLine1":$('#addressLine1').val(),"addressLine2":$('#addressLine2').val(),"suburb":$('#addressSuburb').val(),"city":$('#addressCity').val(),"province":$('#addressProvince').val(),"country":$('#addressCountry').val(),"postalCode":$('#addressPostalCode').val()},
+	function(responseData, textStatus, jqXHR){
+			console.log('Add address successful');
+		},
+	function(responseData, textStatus, errorThrown){
+			console.log('Add address failed');
+			connectionError(responseData, textStatus, errorThrown, 'addAddress',{"addressLine1":$('#addressLine1').val(),"addressLine2":$('#addressLine2').val(),"suburb":$('#addressSuburb').val(),"city":$('#addressCity').val(),"province":$('#addressProvince').val(),"country":$('#addressCountry').val(),"postalCode":$('#addressPostalCode').val()});
+		},
+	function(){},true);
 }

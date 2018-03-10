@@ -497,3 +497,13 @@ h1, h2, h3, .title{
 	padding:2vw;
 	text-align:left;
 }
+
+#loadingProducts{
+	background: white;
+	border-radius: 10px;
+	padding-top: 20px;
+	padding-bottom: 20px;
+	font-family: Tox;
+	color: #7b2154;
+	font-size: 180%;
+}

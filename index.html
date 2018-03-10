@@ -259,7 +259,7 @@
              </select>
          </div>
          <div class="select"><select onKeyPress="validateCardData()" onChange="validateCardData()" onClick="validateCardData()" id="paymentYear"></select></div>
-         <div id="paymentCVVContainer"><input onChange="validateCardData()" onClick="validateCardData()" placeholder="CVV" id="paymentCVV" type="text" /></div>
+         <div id="paymentCVVContainer"><input onKeyPress="validateCardData()" onChange="validateCardData()" onClick="validateCardData()" placeholder="CVV" id="paymentCVV" type="text" /></div>
          
          <input type="hidden" id="paymentVaultID" value="NEW" />
          
@@ -370,11 +370,14 @@
 <div id="connectionError" data-role="page">
 	<img id="logo_banner" src="images/Logo.png" />
 	<div data-role="content">
-		<h1 id="confirm_title">Connection Error</h1>
+		<h1 id="errorTitle">Connection Error</h1>
         <div id="contactUsContainer">
-        	<label>
+        	<label id="errorMsg">
             	Looks like your not connected to the internet. Please check your connection and try again.
             </label>
+            <div align="center">
+            	<button id="errorBtn" onClick="window.location = '#homeScreen';">OK</button>
+            </div>
         </div>
 	</div>
 </div>
