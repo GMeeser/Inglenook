@@ -16,6 +16,8 @@ var orderID = localStorage.orderID;
 var requiresDeliveryFee = true;
 var deliveryFee = 0;
 var deliveryDate = '';
+var seasonalBagPrice = 150;
+var seasonalBagStock = 0;
 
 var disableMenu = false;
 
@@ -68,46 +70,51 @@ $(document).ready(onDeviceReady);
 // PhoneGap is ready
 function onDeviceReady() {
 	window.location = '#loading';
-	//check if online
-	if(!isOnline()){return 0;}
-	
-	$("body").on("swipeleft",function(){closeMenu();});
-	$("body").on("swiperight",function(){openMenu();});
-	$("#addToCartContainer").hide();
-	$("#menu").children().each(function(index, element) {
-        $(element).click(function(){closeMenu();});
-    });
-	
-	
-	//hide cart floating button
+	$('#menu_btn').hide();
 	$('#cartButton').hide();
+	setTimeout(function(){
+		//check if online
+		if(!isOnline()){return 0;}
+		
+		$("body").on("swipeleft",function(){closeMenu();});
+		$("body").on("swiperight",function(){openMenu();});
+		$("#addToCartContainer").hide();
+		$("#menu").children().each(function(index, element) {
+			$(element).click(function(){closeMenu();});
+		});
+		
+		
+		//hide cart floating button
+		$('#cartButton').hide();
+		
+		//hide profile settings from menu
+		$('#menuSettings').hide();
+		$('#menuTrackOrder').hide();
+		$('#menuLogoutBtn').html('<li style="border-bottom-width:2px;"><i class="fa fa-sign-in fa-fw"></i> Log In</li>');
+		$('#menuLogoutBtn').attr('onClick','');
+		$('#menuLogoutBtn').attr('href','#logIn');
 	
-	//hide profile settings from menu
-	$('#menuSettings').hide();
-	$('#menuTrackOrder').hide();
-	$('#menuLogoutBtn').html('<li style="border-bottom-width:2px;"><i class="fa fa-sign-in fa-fw"></i> Log In</li>');
-	$('#menuLogoutBtn').attr('onClick','');
-	$('#menuLogoutBtn').attr('href','#logIn');
-
-	$('#menu_btn').show();
-	
-	//check if token is there and valid
-	if(typeof(localStorage.token)!='undefined'){
-		validateToken();
-	}
-	
-	//console.log();
-	window.location = "#homeScreen"; 
-	orderID=0;
-	
-	updateDropOffLocations();
-	updateAddressSuburb();
-	
-	$.mobile.loadingMessage = false;
-	$("#login_password").keydown(function (e){if (e.keyCode == 13){$("#login_btn").click();}});
-	$("#register_confirm_password").keydown(function (e){if (e.keyCode == 13){$("#register_btn").click();}});
-	
-	sendStoredErrorLog();
+		$('#menu_btn').show();
+		
+		//check if token is there and valid
+		if(typeof(localStorage.token)!='undefined'){
+			validateToken();
+		}
+		
+		//console.log();
+		window.location = "#homeScreen";
+		$('#menu_btn').show(); 
+		orderID=0;
+		
+		updateDropOffLocations();
+		updateAddressSuburb();
+		
+		$.mobile.loadingMessage = false;
+		$("#login_password").keydown(function (e){if (e.keyCode == 13){$("#login_btn").click();}});
+		$("#register_confirm_password").keydown(function (e){if (e.keyCode == 13){$("#register_btn").click();}});
+		
+		sendStoredErrorLog();
+	},5000);
 }
 
 function updateDropOffLocations(){
@@ -813,11 +820,18 @@ function cancelOrder(){
 function proceed(){
 	if(isLogedIn()==false){return 0;}
 	createOrder();
-	updateDropOffLocationMap();
 	window.location = "#selectDropOffLocation";	
 }
 
 function confirmOrder(location){
+	
+	//Change page information
+	$('#confirm_title').html("Confirm Order");
+	$('#confirmOrderCreditCardBtn').show(0);
+	$('#confirmOrderEFTBtn').show(0);
+	$('#confirmOrderCancelBtn').html('Cancel Order');
+	$('#confirmOrderCancelBtn').attr('onClick','cancelOrder()');
+	
 	var total = 0;
 	//Products
 	$("#confirmOrderCartTable").html('<tr id="confirmOrderTitleRow"><td class="confirmOrderCol1">Item</td><td class="confirmOrderCol3">Amount</td><td class="confirmOrderCol4">Price</td></tr>');
@@ -840,6 +854,8 @@ function confirmOrder(location){
 	
 	$('#confirmOrderDropOffPoint').html('<label class="title">Drop Off Point: </label><label>'+location+'</label>');
 	$('#confirmOrderDeliveryDate').html('<label class="title">Delivery Date: </label><label>'+deliveryDate+'</label>');
+	
+	$('#confirmOrderEFTBtn').attr('onClick','checkoutWithEFT('+total+')');
 	
 	window.location = "#confirmOrder";
 }
@@ -1064,70 +1080,30 @@ function updateTracking(){
 	var orderList = null;
 	//clear tracking page
 	$('#trackingContainer').html('<h2>Loading...</h2>');
-	//get list of all active orders	
-	console.log('Request list of orders for tracking');
-	connectToServer('getTrackingOrders',{},
-		function(responseData, textStatus, jqXHR){
-			responseData = JSON.parse(responseData);
-			orderList = responseData.orderList;	
-			console.log('List of orders for tracking succesfully recieved');
-		},
-		function(responseData, textStatus, errorThrown){
-			console.log('List of orders for tracking succesfully recieved');
-			connectionError(responseData, textStatus, errorThrown,'getTrackingOrders',{});
-		},
-		function(){},false);
-		
-	//add order list to tracking page
-	if(orderList.length>0){$('#trackingContainer').html('');}else{$('#trackingContainer').html('<h2>No Orders</h2>');}
-	$.each(orderList,function(index, value){addTrackingInfo(value);});
-	//go to order tracking page
 	window.location = '#trackOrder';
-	$('#cartButton').hide(250);
-}
+	closeMenu();
 
-function updateDropOffLocationMap(){
-	if($('#dropOffLocation').val()=='Darling')
-		{
-			$('#selectDropOffLocationMap').attr('src','https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3331.810979698483!2d18.379740314712365!3d-33.376000501080235!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1dccb8d674307ebb%3A0x5a2fe4f21e3ed30a!2sThe+Flying+Pig!5e0!3m2!1sen!2sza!4v1502343476418');
-		}
-		
-	if($('#dropOffLocation').val()=='Grotto Bay')
-		{
-			$('#selectDropOffLocationMap').attr('src','https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3326.921393563506!2d18.317444514716925!3d-33.503422207617916!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1dcc966dff60d5bf%3A0x4c989184ac0095a7!2sSea+Eagle+Dr%2C+Grotto+Bay!5e0!3m2!1sen!2sza!4v1502350074317');
-		}
-	
-	if($('#dropOffLocation').val()=='Tableview')
-		{
-			$('#selectDropOffLocationMap').attr('src','https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3314.5530466851847!2d18.481411314728458!3d-33.82384552415738!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1dcc5f0c4986ca2f%3A0xcf7de1573857d1e!2s52+Blaauwberg+Rd%2C+Table+View%2C+Cape+Town%2C+7441!5e0!3m2!1sen!2sza!4v1502350294167');
-		}
-	
-	if($('#dropOffLocation').val()=='Cape Town')
-		{
-			$('#selectDropOffLocationMap').attr('src','https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3310.8211365788175!2d18.419045914731928!3d-33.92000272914862!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1dcc6766b7663daf%3A0xa6f560ca852d2fa2!2sStrand+Tower+Hotel!5e0!3m2!1sen!2sza!4v1502342319783');
-		}
-	
-	if($('#dropOffLocation').val()=='Hout Bay')
-		{
-			$('#selectDropOffLocationMap').attr('src','https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3305.9691387872604!2d18.360727014736376!3d-34.04466273563808!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1dcc6910c87974db%3A0x125d83276db6f072!2s13+Baviaanskloof+Rd%2C+Scott+Estate%2C+Cape+Town%2C+7806!5e0!3m2!1sen!2sza!4v1502343762609');
-		}
-	if($('#dropOffLocation').val()=='AAA Travel')
-		{
-			$('#selectDropOffLocationMap').attr('src','https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3306.0141948179653!2d18.348203315214818!3d-34.04350698060827!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1dcc69249e093b05%3A0xbcf362f05c10a7c1!2sAAA+TRAVEL+AFRICA!5e0!3m2!1sen!2sza!4v1502910252612');
-		}
-	if($('#dropOffLocation').val()=='Sea Point')
-		{	
-		$('#selectDropOffLocationMap').attr('src','https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3310.8204332304213!2d18.382563614731918!3d-33.92002082914944!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1dcc67219526464b%3A0xeecc1a34e0ebfbe2!2sSea+Point+Nursery!5e0!3m2!1sen!2sza!4v1502979445681');
-		}
-	if($('#dropOffLocation').val()=='Camps Bay - Sunset Sessions')
-		{	
-		$('#selectDropOffLocationMap').attr('src','https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3309.562644398707!2d18.3775548586834!3d-33.95237523619917!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1dcc6652e4343943%3A0xc1e09fbac40fda3d!2s69+Victoria+Rd%2C+Camps+Bay%2C+Cape+Town%2C+8040!5e0!3m2!1sen!2sza!4v1504160728823');
-		}
-		if($('#dropOffLocation').val()=='Yzerfontein')
-		{	
-		$('#selectDropOffLocationMap').attr('src','https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3333.0077742262747!2d18.159095114711196!3d-33.3447466994801!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1dcca5ebf8460529%3A0x65b662681862e5a0!2s5+Main+Rd%2C+Yzerfontein%2C+7351!5e0!3m2!1sen!2sza!4v1504505937518');
-		}
-		
+	setTimeout(function(){
+		//get list of all active orders	
+		console.log('Request list of orders for tracking');
+		connectToServer('getTrackingOrders',{},
+			function(responseData, textStatus, jqXHR){
+				responseData = JSON.parse(responseData);
+				orderList = responseData.orderList;	
+				console.log('List of orders for tracking succesfully recieved');
+			},
+			function(responseData, textStatus, errorThrown){
+				console.log('List of orders for tracking succesfully recieved');
+				connectionError(responseData, textStatus, errorThrown,'getTrackingOrders',{});
+			},
+			function(){},false);
+			
+		//add order list to tracking page
+		if(orderList.length>0){$('#trackingContainer').html('');}else{$('#trackingContainer').html('<h2>No Orders</h2>');}
+		$.each(orderList,function(index, value){addTrackingInfo(value);});
+	},100);
+
+	$('#cartButton').hide(250);
 }
 
 function newsletter(){
@@ -1243,4 +1219,143 @@ function addAddress(){
 			connectionError(responseData, textStatus, errorThrown, 'addAddress',{"addressLine1":$('#addressLine1').val(),"addressLine2":$('#addressLine2').val(),"suburb":$('#addressSuburb').val(),"city":$('#addressCity').val(),"province":$('#addressProvince').val(),"country":$('#addressCountry').val(),"postalCode":$('#addressPostalCode').val()});
 		},
 	function(){},true);
+}
+
+function viewOrder(orderID){
+	//Change page information
+	$('#confirm_title').html("View Order "+orderID);
+	$('#confirmOrderCreditCardBtn').hide(0);
+	$('#confirmOrderEFTBtn').hide(0);
+	$('#confirmOrderCancelBtn').html('Done');
+	$('#confirmOrderCancelBtn').attr('onClick','updateTracking()');
+	
+	$("#confirmOrderCartTable").html('<tr><td><h2>Loading</h2></td></tr>');
+	
+	connectToServer('getOrder',{"orderID":orderID},
+		function(responseData, textStatus, jqXHR){
+			responseData = JSON.parse(responseData);
+			var total = 0;
+			
+			//Products table header
+			$("#confirmOrderCartTable").html('<tr id="confirmOrderTitleRow">'+
+												'<td class="confirmOrderCol1">Item</td>'+
+												'<td class="confirmOrderCol3">Amount</td>'+
+												'<td class="confirmOrderCol4">Price</td>'+
+											'</tr>');
+			//loop throough products and add them to the table
+			var cart = responseData.products;
+			for(i=0;i<cart.length;i++){
+				total = total+(cart[i].price*cart[i].amount);
+				$("#confirmOrderCartTable").append('<tr>'+
+					'<td class="confirmOrderCol1">'+cart[i].title+'</td>'+
+					'<td id="amount-'+i+'" align="center">'+cart[i].amount+'</td>'+
+					'<td id="price-'+i+'" align="left">R'+(cart[i].price*cart[i].amount)+'</td>'+
+					'</tr>'	);
+			}
+			
+			//deposit
+			$("#confirmOrderCartTable").append('<tr>'+
+												'<td colspan="2">Bag Deposit</td>'+
+												'<td style="border-top:black 1px solid;" align="left">R0</td>'+
+												'</tr>');
+												
+			//delivery fee
+			$("#confirmOrderCartTable").append('<tr>'+
+													'<td colspan="2">Delivery Fee</td>'+
+													'<td align="left">R'+responseData.deliveryFee+'</td>'+
+												'</tr>');
+			
+			//Order total
+			$("#confirmOrderCartTable").append('<tr id="confirmOrderTitleTotalRow"><td></td><td></td><td>Total</td></tr>');
+			$("#confirmOrderCartTable").append('<tr><td><td></td></td>'+
+													'<td id="confirmOrderTotal" align="left">R'+responseData.total+'</td>'+
+												'</tr>');
+			
+			//Drop off location
+			$('#confirmOrderDropOffPoint').html('<label class="title">Drop Off Point: </label>'+
+													'<label>'+responseData.dropOffLocation+'</label>');
+			
+			//Delivery date
+			$('#confirmOrderDeliveryDate').html('<label class="title">Delivery Date: </label>'+
+													'<label>'+responseData.deliveryDate+'</label>');
+			//go to orders confirmation page
+			window.location = "#confirmOrder";	
+		},
+		function(responseData, textStatus, errorThrown){
+			connectionError(responseData,textStatus,errorThrown,'getOrder',{'orderID':orderID});
+		},
+		function(){},true);
+
+}
+
+function checkoutWithEFT(total){
+	//update EFT Details
+	$('#eftDetails').html('Please make EFT your order payment to us and send us the proof of payment to confirm your order.'+
+					'<h3>Bank</h3>'+
+					'Standard Bank'+
+					'<h3>Account Number</h3>'+
+					'07 084 3716'+
+					'<h3>Branch</h3>'+
+					'Thibault Square Branch'+ 
+					'<h3>Branch Code</h3>'+
+					'020 909'+
+					'<h3>Amount</h3>'+
+					'R'+total+
+					'<h3>Reference</h3>'+
+					'Order#'+orderID+
+					'<p><b>Please email your proof of payment to '+
+					'orders@inglenookfarm.co.za</b></p>');
+					
+					
+	window.location = '#EFTDetails';
+	
+	connectToServer('changePaymentType',{'orderID':orderID,'paymentType':'EFT'},
+		function(responseData, textStatus, jqXHR){
+				$('#eftBtns').html('<button onClick="clearCart()">Done</button>');
+			},
+		function(responseData, textStatus, errorThrown){
+				connectionError(responseData,textStatus,errorThrown,'changePaymentType',{'orderID':orderID,'paymentType':'EFT'});
+			},
+		function(){},true);
+}
+
+function goToSeasonalBag(){
+	window.location = "#SeasonalVeg";
+	$('#seasonalvegDescription').html('<h2>Loading...</h2>');
+	
+	if(cart.length>0){
+		$('#cartButton').show(250);
+	}
+	
+	connectToServer('getSeasonalBag',{},
+		function(responseData, textStatus, jqXHR){
+				responseData = JSON.parse(responseData);
+				$('#seasonalvegDescription').html('<img src="'+responseData.imagePath+'"/>');
+				$('#seasonalvegDescription').append('<label>'+responseData.description+'</label>');
+				$('#seasonalvegDescription').append('<h3>The seasonal vegetable bag contains:</h3>');
+				$('#seasonalvegDescription').append('<ul>');
+				$.each(responseData.products, function(index, value){
+					$('#seasonalvegDescription').append('<li>'+value.amount+' x '+value.title+'</li>');
+				});
+				$('#seasonalvegDescription').append('</ul>');
+				$('#seasonalvegDescription').append('<h3>Price: R'+responseData.price+'</h3>');
+				
+				seasonalBagPrice = responseData.price;
+				seasonalBagStock = responseData.stock;
+				
+				$('#seasonalBagAddToCartBtn').attr('onClick','addSeasonalBagToCart()');
+				
+			},
+		function(responseData, textStatus, errorThrown){
+				connectionError(responseData,textStatus,errorThrown,'changePaymentType',{'orderID':orderID,'paymentType':'EFT'});
+			},
+		function(){},true);
+}
+
+function addSeasonalBagToCart(){
+	$('#addToCartTitle').html('Seasonal Vegetable Bag');
+	$('#addToCartAddNumber').html(1);
+	addToCart(1,seasonalBagPrice,seasonalBagStock);
+	
+	
 }

@@ -146,6 +146,8 @@ button{
 h1, h2, h3, .title{
 	color: #82945b;
 	font-family: Tox;
+	margin-top:0px;
+	margin-bottom:0px;
 }
 
 .purple{
@@ -178,8 +180,8 @@ h1, h2, h3, .title{
 	background-size: 10%;
 }
 
-#homeScreen #veg, #art{
-	height: 23vh;
+#homeScreen #veg, #art, #seasonalveg{
+	height: 17vh;
 	margin: 0%;
 	z-index: 2;
 	display: inline-block;
@@ -506,4 +508,13 @@ h1, h2, h3, .title{
 	font-family: Tox;
 	color: #7b2154;
 	font-size: 180%;
+}
+
+#seasonalvegDescription li{
+	margin-left: 40px;
+	list-style: none;
+}
+
+#seasonalvegDescription img{
+	width:100%;
 }
